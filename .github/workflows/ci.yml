@@ -163,6 +163,10 @@ jobs:
   security-scan:
     name: Security Scan
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
     steps:
     - uses: actions/checkout@v4
 
@@ -178,6 +182,7 @@ jobs:
       run: $(go env GOPATH)/bin/gosec -no-fail -fmt sarif -out results.sarif ./...
 
     - name: Upload SARIF file
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
       uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: results.sarif
