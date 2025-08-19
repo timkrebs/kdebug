@@ -41,12 +41,12 @@ const (
 
 // DiagnosticReport represents a complete diagnostic report
 type DiagnosticReport struct {
+	ClusterInfo map[string]string      `json:"cluster_info" yaml:"cluster_info"`
+	Metadata    map[string]interface{} `json:"metadata,omitempty" yaml:"metadata,omitempty"`
+	Checks      []CheckResult          `json:"checks" yaml:"checks"`
 	Target      string                 `json:"target" yaml:"target"`
 	Timestamp   string                 `json:"timestamp" yaml:"timestamp"`
-	ClusterInfo map[string]string      `json:"cluster_info" yaml:"cluster_info"`
 	Summary     Summary                `json:"summary" yaml:"summary"`
-	Checks      []CheckResult          `json:"checks" yaml:"checks"`
-	Metadata    map[string]interface{} `json:"metadata,omitempty" yaml:"metadata,omitempty"`
 }
 
 // Summary provides a summary of check results
@@ -90,7 +90,7 @@ func (o *OutputManager) PrintReport(report *DiagnosticReport) error {
 	case FormatYAML:
 		return o.printYAML(report)
 	case FormatTable:
-		fallthrough
+		return o.printTable(report)
 	default:
 		return o.printTable(report)
 	}
@@ -106,7 +106,11 @@ func (o *OutputManager) printJSON(report *DiagnosticReport) error {
 // printYAML prints the report as YAML
 func (o *OutputManager) printYAML(report *DiagnosticReport) error {
 	encoder := yaml.NewEncoder(os.Stdout)
-	defer encoder.Close()
+	defer func() {
+		if err := encoder.Close(); err != nil {
+			fmt.Fprintf(os.Stderr, "Error closing YAML encoder: %v\n", err)
+		}
+	}()
 	return encoder.Encode(report)
 }
 
@@ -118,9 +122,11 @@ func (o *OutputManager) printTable(report *DiagnosticReport) error {
 	// Print cluster info if verbose
 	if o.Verbose && len(report.ClusterInfo) > 0 {
 		fmt.Println("📋 Cluster Information:")
+
 		for key, value := range report.ClusterInfo {
 			fmt.Printf("   %s: %s\n", key, value)
 		}
+
 		fmt.Println()
 	}
 
@@ -154,9 +160,11 @@ func (o *OutputManager) printTable(report *DiagnosticReport) error {
 			if check.Suggestion != "" {
 				table.Append([]string{"", "💡", "Suggestion: " + check.Suggestion})
 			}
+
 			if check.Error != "" {
 				table.Append([]string{"", "❌", "Error: " + check.Error})
 			}
+
 			for key, value := range check.Details {
 				table.Append([]string{"", "📄", fmt.Sprintf("%s: %s", key, value)})
 			}
@@ -167,28 +175,35 @@ func (o *OutputManager) printTable(report *DiagnosticReport) error {
 
 	// Print summary
 	fmt.Printf("\n📊 Summary: %d/%d checks passed", report.Summary.Passed, report.Summary.Total)
+
 	if report.Summary.Failed > 0 {
 		fmt.Printf(", %d failed", report.Summary.Failed)
 	}
+
 	if report.Summary.Warnings > 0 {
 		fmt.Printf(", %d warnings", report.Summary.Warnings)
 	}
+
 	if report.Summary.Skipped > 0 {
 		fmt.Printf(", %d skipped", report.Summary.Skipped)
 	}
+
 	fmt.Println()
 
 	// Print failed checks summary
 	if !o.Verbose && (report.Summary.Failed > 0 || report.Summary.Warnings > 0) {
 		fmt.Println("\n🎯 Issues Found:")
+
 		for _, check := range report.Checks {
 			if check.Status == StatusFailed || check.Status == StatusWarning {
 				fmt.Printf("   %s %s\n", o.formatStatus(check.Status), check.Name)
+
 				if check.Suggestion != "" {
 					fmt.Printf("      💡 %s\n", check.Suggestion)
 				}
 			}
 		}
+
 		fmt.Println("\nRun with --verbose for detailed information")
 	}
 
@@ -214,6 +229,7 @@ func (o *OutputManager) formatStatus(status CheckStatus) string {
 // PrintError prints an error message
 func (o *OutputManager) PrintError(message string, err error) {
 	fmt.Fprintf(os.Stderr, "❌ Error: %s\n", message)
+
 	if err != nil {
 		if o.Verbose {
 			fmt.Fprintf(os.Stderr, "   Details: %v\n", err)

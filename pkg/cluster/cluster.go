@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"kdebug/internal/client"
-	"kdebug/internal/output"
-
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
+	"kdebug/internal/client"
+	"kdebug/internal/output"
 )
 
 // ClusterDiagnostic handles cluster-level health checks
@@ -132,11 +132,14 @@ func (c *ClusterDiagnostic) checkNodeHealth(ctx context.Context) []output.CheckR
 	// Overall node summary
 	totalNodes := len(nodes.Items)
 	readyNodes := 0
+
 	var problematicNodes []string
 
 	// Check each node
-	for _, node := range nodes.Items {
+	for i := range nodes.Items {
+		node := &nodes.Items[i]
 		nodeReady := false
+
 		var nodeIssues []string
 
 		// Check node conditions
@@ -226,7 +229,7 @@ func (c *ClusterDiagnostic) checkNodeHealth(ctx context.Context) []output.CheckR
 
 // checkControlPlane checks the health of control plane components
 func (c *ClusterDiagnostic) checkControlPlane(ctx context.Context) []output.CheckResult {
-	var results []output.CheckResult
+	results := make([]output.CheckResult, 0, 8) // pre-allocate with capacity
 
 	// Check if we can access system namespaces (indicates control plane access)
 	systemPods, err := c.client.Clientset.CoreV1().Pods("kube-system").List(ctx, metav1.ListOptions{
@@ -253,8 +256,9 @@ func (c *ClusterDiagnostic) checkControlPlane(ctx context.Context) []output.Chec
 	}
 
 	// Group pods by component
-	components := make(map[string][]corev1.Pod)
-	for _, pod := range systemPods.Items {
+	components := make(map[string][]*corev1.Pod)
+	for i := range systemPods.Items {
+		pod := &systemPods.Items[i]
 		if component, exists := pod.Labels["component"]; exists {
 			components[component] = append(components[component], pod)
 		}
@@ -298,6 +302,7 @@ func (c *ClusterDiagnostic) checkControlPlane(ctx context.Context) []output.Chec
 	// Overall control plane summary
 	overallStatus := output.StatusPassed
 	summaryMessage := "Control plane components are healthy"
+
 	if !allHealthy {
 		overallStatus = output.StatusWarning
 		summaryMessage = "Some control plane components have issues"
@@ -342,13 +347,11 @@ func (c *ClusterDiagnostic) checkDNS(ctx context.Context) output.CheckResult {
 	}
 
 	runningDNSPods := 0
-	var dnsIssues []string
 
-	for _, pod := range dnsPods.Items {
+	for i := range dnsPods.Items {
+		pod := &dnsPods.Items[i]
 		if pod.Status.Phase == corev1.PodRunning {
 			runningDNSPods++
-		} else {
-			dnsIssues = append(dnsIssues, fmt.Sprintf("%s: %s", pod.Name, pod.Status.Phase))
 		}
 	}
 
@@ -415,9 +418,11 @@ func (c *ClusterDiagnostic) getControlPlaneSuggestion(component string, running,
 	if running == 0 {
 		return fmt.Sprintf("Restart %s component or check its configuration", component)
 	}
+
 	if running < total {
 		return fmt.Sprintf("Check %s pod logs for issues", component)
 	}
+
 	return ""
 }
 
@@ -427,6 +432,7 @@ func (c *ClusterDiagnostic) calculateSummary(checks []output.CheckResult) output
 
 	for _, check := range checks {
 		summary.Total++
+
 		switch check.Status {
 		case output.StatusPassed:
 			summary.Passed++

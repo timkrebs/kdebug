@@ -23,6 +23,7 @@ type KubernetesClient struct {
 // NewKubernetesClient creates a new Kubernetes client
 func NewKubernetesClient(kubeconfig string) (*KubernetesClient, error) {
 	var config *rest.Config
+
 	var err error
 
 	if kubeconfig == "" {
@@ -74,6 +75,7 @@ func (k *KubernetesClient) TestConnection(ctx context.Context) error {
 				"  • Check kubeconfig: 'kubectl cluster-info'\n"+
 				"Original error: %w", err)
 		}
+
 		if strings.Contains(errMsg, "no such host") || strings.Contains(errMsg, "connection refused") {
 			return fmt.Errorf("cluster unreachable - please check network connectivity:\n"+
 				"  • Verify cluster is running\n"+
@@ -81,8 +83,10 @@ func (k *KubernetesClient) TestConnection(ctx context.Context) error {
 				"  • Ensure network access to cluster\n"+
 				"Original error: %w", err)
 		}
+
 		return fmt.Errorf("failed to connect to Kubernetes cluster: %w", err)
 	}
+
 	return nil
 }
 
@@ -109,6 +113,7 @@ func getDefaultKubeconfigPath() string {
 	if home := homedir.HomeDir(); home != "" {
 		return filepath.Join(home, ".kube", "config")
 	}
+
 	return ""
 }
 
