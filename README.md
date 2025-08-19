@@ -68,7 +68,7 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
 ### Prerequisites
 - Kubernetes cluster access (local or remote)
 - `kubectl` configured and working
-- Go 1.19+ (for building from source)
+- Go 1.23+ (for building from source)
 
 ### Install from Release (Recommended)
 ```bash
@@ -249,7 +249,7 @@ $ kdebug cluster --output table
 
 ## Tech Stack
 
-- **Core Language:** Go 1.19+
+- **Core Language:** Go 1.23+
 - **CLI Framework:** [Cobra](https://github.com/spf13/cobra) - Used by Kubernetes, Helm, and other CNCF projects
 - **Kubernetes Client:** [client-go](https://github.com/kubernetes/client-go) - Official Kubernetes API client
 - **Output Formats:** Table (default), JSON, YAML
@@ -290,7 +290,7 @@ kdebug/
 ## Development
 
 ### Prerequisites
-- Go 1.19 or later
+- Go 1.23 or later
 - Access to a Kubernetes cluster (local or remote)
 - `kubectl` configured and working
 

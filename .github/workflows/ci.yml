@@ -7,7 +7,7 @@ on:
     branches: [ main, develop ]
 
 env:
-  GO_VERSION: '1.21'
+  GO_VERSION: '1.23'  # Using stable Go version for CI
 
 jobs:
   test:
@@ -172,7 +172,7 @@ jobs:
         go-version: ${{ env.GO_VERSION }}
 
     - name: Run Gosec Security Scanner
-      uses: securecodewarrior/github-action-gosec@master
+      uses: securego/gosec@v2
       with:
         args: '-no-fail -fmt sarif -out results.sarif ./...'
 
