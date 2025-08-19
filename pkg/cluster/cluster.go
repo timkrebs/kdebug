@@ -235,7 +235,6 @@ func (c *ClusterDiagnostic) checkControlPlane(ctx context.Context) []output.Chec
 	systemPods, err := c.client.Clientset.CoreV1().Pods("kube-system").List(ctx, metav1.ListOptions{
 		LabelSelector: "component in (etcd,kube-apiserver,kube-controller-manager,kube-scheduler)",
 	})
-
 	if err != nil {
 		return []output.CheckResult{{
 			Name:       "Control Plane Health",
@@ -326,7 +325,6 @@ func (c *ClusterDiagnostic) checkDNS(ctx context.Context) output.CheckResult {
 	dnsPods, err := c.client.Clientset.CoreV1().Pods("kube-system").List(ctx, metav1.ListOptions{
 		LabelSelector: "k8s-app in (kube-dns,coredns)",
 	})
-
 	if err != nil {
 		return output.CheckResult{
 			Name:       "DNS Health",
