@@ -12,6 +12,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"kdebug/internal/output"
 )
 
 const (
@@ -332,10 +334,10 @@ func scaleDeployment(t *testing.T, name, namespace string, replicas int) {
 	}
 }
 
-func validateJSONOutput(t *testing.T, output string) {
+func validateJSONOutput(t *testing.T, outputStr string) {
 	var report output.DiagnosticReport
-	if err := json.Unmarshal([]byte(output), &report); err != nil {
-		t.Errorf("Invalid JSON output: %v\nOutput: %s", err, output)
+	if err := json.Unmarshal([]byte(outputStr), &report); err != nil {
+		t.Errorf("Invalid JSON output: %v\nOutput: %s", err, outputStr)
 		return
 	}
 
