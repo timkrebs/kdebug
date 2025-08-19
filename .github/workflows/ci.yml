@@ -111,7 +111,7 @@ jobs:
         wait: 60s
 
     - name: Download binary artifact
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: kdebug-linux-amd64
         path: bin/
@@ -155,7 +155,7 @@ jobs:
       run: make build-all
 
     - name: Upload cross-compiled binaries
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: kdebug-all-platforms
         path: bin/
