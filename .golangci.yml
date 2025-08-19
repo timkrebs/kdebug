@@ -1,0 +1,177 @@
+# golangci-lint configuration for kdebug
+
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+  skip-dirs:
+    - vendor
+    - bin
+  skip-files:
+    - ".*_test.go"
+  modules-download-mode: readonly
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+  uniq-by-line: true
+  sort-results: true
+
+linters:
+  enable:
+    # Default linters
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    
+    # Additional useful linters
+    - gofmt
+    - goimports
+    - golint
+    - gosec
+    - goconst
+    - gocyclo
+    - misspell
+    - unconvert
+    - unparam
+    - nakedret
+    - prealloc
+    - scopelint
+    - gocritic
+    - gochecknoinits
+    - gochecknoglobals
+    - whitespace
+    - wsl
+    - dogsled
+    - bodyclose
+    - noctx
+    - rowserrcheck
+    - sqlclosecheck
+    - exportloopref
+    - asciicheck
+    - gofumpt
+    - errorlint
+    - forcetypeassert
+    - importas
+    - makezero
+    - nilerr
+    - predeclared
+    - thelper
+    - wastedassign
+
+  disable:
+    - funlen       # Function length can be reasonable for complex logic
+    - lll          # Line length can be flexible
+    - gomnd        # Magic numbers are sometimes OK
+    - nlreturn     # Not always necessary
+    - testpackage  # Tests can be in same package
+
+linters-settings:
+  gofmt:
+    simplify: true
+  
+  goimports:
+    local-prefixes: kdebug
+  
+  golint:
+    min-confidence: 0.8
+  
+  govet:
+    check-shadowing: true
+    enable-all: true
+  
+  gocyclo:
+    min-complexity: 15
+  
+  goconst:
+    min-len: 3
+    min-occurrences: 3
+  
+  gosec:
+    severity: medium
+    confidence: medium
+    excludes:
+      - G204  # Subprocess launched with variable
+      - G304  # File path provided as taint input
+  
+  misspell:
+    locale: US
+  
+  nakedret:
+    max-func-lines: 30
+  
+  unparam:
+    check-exported: false
+  
+  unused:
+    check-exported: false
+  
+  whitespace:
+    multi-if: false
+    multi-func: false
+  
+  wsl:
+    strict-append: true
+    allow-assign-and-call: true
+    allow-multiline-assign: true
+    allow-case-trailing-whitespace: true
+    allow-cuddle-declarations: false
+  
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - experimental
+      - opinionated
+      - performance
+      - style
+    disabled-checks:
+      - dupImport
+      - ifElseChain
+      - octalLiteral
+      - whyNoLint
+      - wrapperFunc
+      - importShadow
+      - unnamedResult
+      - unnecessaryBlock
+
+issues:
+  exclude-rules:
+    # Exclude some linters from running on tests files
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+        - goconst
+        - gochecknoglobals
+        - unparam
+    
+    # Exclude known linter issues
+    - text: "Use of weak random number generator"
+      linters:
+        - gosec
+    
+    # Exclude shadow checking on err variables
+    - text: "shadow: declaration of \"err\""
+      linters:
+        - govet
+    
+    # Exclude certain gocritic checks
+    - text: "unnecessaryDefer:"
+      linters:
+        - gocritic
+  
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0
+  new: false
+  
+severity:
+  default-severity: error
+  case-sensitive: false
