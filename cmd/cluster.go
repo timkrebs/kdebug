@@ -5,17 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/spf13/cobra"
+
 	"kdebug/internal/client"
 	"kdebug/internal/output"
 	"kdebug/pkg/cluster"
-
-	"github.com/spf13/cobra"
-)
-
-var (
-	// Cluster command specific flags
-	nodesOnly bool
-	timeout   time.Duration
 )
 
 // clusterCmd represents the cluster command
@@ -54,12 +48,16 @@ func init() {
 	rootCmd.AddCommand(clusterCmd)
 
 	// Cluster-specific flags
-	clusterCmd.Flags().BoolVar(&nodesOnly, "nodes-only", false, "check only node health (skip control plane and DNS checks)")
-	clusterCmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "timeout for cluster checks")
+	clusterCmd.Flags().Bool("nodes-only", false, "check only node health (skip control plane and DNS checks)")
+	clusterCmd.Flags().Duration("timeout", 30*time.Second, "timeout for cluster checks")
 }
 
 // runClusterDiagnostics executes the cluster diagnostic checks
 func runClusterDiagnostics(cmd *cobra.Command, args []string) error {
+	// Get flag values
+	nodesOnly, _ := cmd.Flags().GetBool("nodes-only")
+	timeout, _ := cmd.Flags().GetDuration("timeout")
+
 	// Create context with timeout
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
@@ -71,9 +69,11 @@ func runClusterDiagnostics(cmd *cobra.Command, args []string) error {
 	if verbose {
 		outputMgr.PrintInfo("Starting cluster diagnostics...")
 		outputMgr.PrintInfo(fmt.Sprintf("Timeout: %v", timeout))
+
 		if kubeconfig != "" {
 			outputMgr.PrintInfo(fmt.Sprintf("Using kubeconfig: %s", kubeconfig))
 		}
+
 		fmt.Println()
 	}
 
@@ -88,6 +88,7 @@ func runClusterDiagnostics(cmd *cobra.Command, args []string) error {
 	if err := k8sClient.TestConnection(ctx); err != nil {
 		outputMgr.PrintError("Failed to connect to Kubernetes cluster", err)
 		outputMgr.PrintInfo("Please check your kubeconfig and cluster connectivity")
+
 		return err
 	}
 
@@ -157,6 +158,7 @@ func filterNodeChecksOnly(report *output.DiagnosticReport) *output.DiagnosticRep
 	newSummary := output.Summary{}
 	for _, check := range filteredChecks {
 		newSummary.Total++
+
 		switch check.Status {
 		case output.StatusPassed:
 			newSummary.Passed++
@@ -168,6 +170,7 @@ func filterNodeChecksOnly(report *output.DiagnosticReport) *output.DiagnosticRep
 			newSummary.Skipped++
 		}
 	}
+
 	newReport.Summary = newSummary
 
 	return &newReport
@@ -184,5 +187,6 @@ func containsAny(s string, substrings []string) bool {
 			}
 		}
 	}
+
 	return false
 }
