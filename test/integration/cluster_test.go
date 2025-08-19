@@ -171,7 +171,6 @@ func TestClusterCommandHelp(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(binaryPath, tt.args...)
 			output, err := cmd.CombinedOutput()
-
 			if err != nil {
 				t.Fatalf("Help command failed: %v\nOutput: %s", err, string(output))
 			}
