@@ -1,0 +1,229 @@
+name: "🚀 New Feature Request"
+description: "Suggest a completely new feature for kdebug"
+title: "[Feature]: "
+labels: ["feature-request", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # New Feature Request 🚀
+        
+        Thank you for suggesting a new feature for kdebug! 
+        New features help expand kdebug's capabilities and solve new problems for the Kubernetes community.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Pre-submission checklist"
+      description: "Please verify you have completed the following"
+      options:
+        - label: "I have searched existing issues and feature requests"
+          required: true
+        - label: "I have checked the roadmap to see if this is already planned"
+          required: true
+        - label: "This is a completely new feature (not an enhancement to existing functionality)"
+          required: true
+
+  - type: input
+    id: feature_name
+    attributes:
+      label: "Feature Name"
+      description: "What would you call this new feature?"
+      placeholder: "e.g., Network Policy Validator, Resource Recommendations, Multi-cluster Support"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: "Feature Description"
+      description: "Describe the new feature in detail"
+      placeholder: |
+        What should this feature do?
+        How should it work?
+        What would be the main functionality?
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem_statement
+    attributes:
+      label: "Problem Statement"
+      description: "What problem does this feature solve?"
+      placeholder: |
+        Describe:
+        - What pain points or challenges does this address?
+        - What gaps exist in current kdebug functionality?
+        - What manual processes could this automate?
+        - What Kubernetes issues are currently hard to diagnose?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_cases
+    attributes:
+      label: "Use Cases and Scenarios"
+      description: "Provide specific examples of when and how this feature would be used"
+      placeholder: |
+        Example scenarios:
+        1. As a DevOps engineer, I want to... so that...
+        2. When debugging application X, this feature would help by...
+        3. In production environments, this would be useful for...
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: "Proposed Solution"
+      description: "How do you envision this feature working?"
+      placeholder: |
+        Describe:
+        - User interface (CLI commands, flags, options)
+        - Expected behavior and workflow
+        - Integration with existing kdebug features
+        - Output format and information provided
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: "Acceptance Criteria"
+      description: "What would need to be true for this feature to be considered complete?"
+      placeholder: |
+        Define success criteria:
+        - [ ] Feature can detect/diagnose X
+        - [ ] Users can run `kdebug command` to achieve Y
+        - [ ] Output includes relevant information Z
+        - [ ] Works with Kubernetes versions A-B
+        - [ ] Handles error cases gracefully
+    validations:
+      required: true
+
+  - type: textarea
+    id: command_examples
+    attributes:
+      label: "Command Examples"
+      description: "Show how users would interact with this feature"
+      render: shell
+      placeholder: |
+        # Example commands and expected output
+        kdebug new-feature [options]
+        
+        # Expected output:
+        ✅ Check 1: Description
+        ❌ Check 2: Problem found
+           ↳ Suggestion: How to fix it
+
+  - type: textarea
+    id: kubernetes_scope
+    attributes:
+      label: "Kubernetes Resources and Scope"
+      description: "What Kubernetes resources or areas would this feature analyze?"
+      placeholder: |
+        Examples:
+        - Specific K8s resources (pods, services, configmaps, etc.)
+        - Cluster-level components (nodes, storage, networking)
+        - Cross-resource relationships
+        - Custom resources or operators
+        - Multi-namespace or cluster-wide analysis
+
+  - type: dropdown
+    id: feature_category
+    attributes:
+      label: "Feature Category"
+      description: "Which category best describes this feature?"
+      options:
+        - "Workload Diagnostics (pods, deployments, jobs)"
+        - "Networking & Connectivity (services, ingress, DNS)"
+        - "Cluster Health & Resources (nodes, storage, quotas)"
+        - "Security & RBAC (permissions, policies, secrets)"
+        - "Performance & Optimization (resources, scaling, efficiency)"
+        - "Configuration Validation (manifests, best practices)"
+        - "Multi-cluster or Multi-environment"
+        - "Integration & Automation (CI/CD, monitoring tools)"
+        - "User Experience (output, reporting, visualization)"
+        - "Other"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target_users
+    attributes:
+      label: "Target Users"
+      description: "Who would primarily benefit from this feature?"
+      options:
+        - "Kubernetes beginners"
+        - "Application developers"
+        - "DevOps engineers"
+        - "Platform engineers"
+        - "Site reliability engineers (SRE)"
+        - "Cluster administrators"
+        - "Security engineers"
+        - "All kdebug users"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: "Priority/Urgency"
+      description: "How urgent is this feature for your use case?"
+      options:
+        - "Critical - blocking our adoption of kdebug"
+        - "High - would significantly improve our workflow"
+        - "Medium - nice to have, would be helpful"
+        - "Low - future enhancement, not immediately needed"
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives and Workarounds"
+      description: "What alternatives exist today? How do you currently solve this problem?"
+      placeholder: |
+        - Current manual processes or tools used
+        - Other tools that provide similar functionality
+        - Workarounds or scripts you've created
+        - Why existing solutions aren't sufficient
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Any other information that would help evaluate this feature request"
+      placeholder: |
+        - Links to related documentation or tools
+        - Screenshots or diagrams
+        - References to Kubernetes SIGs or KEPs
+        - Performance or scale requirements
+        - Dependencies on other features
+
+  - type: dropdown
+    id: implementation_interest
+    attributes:
+      label: "Implementation Interest"
+      description: "Are you interested in helping implement this feature?"
+      options:
+        - "No, I'm just requesting the feature"
+        - "Yes, I would like to design and implement it"
+        - "Yes, I can help with design but need help with implementation"
+        - "Yes, I can help with implementation if design is provided"
+        - "Yes, but I need significant guidance and support"
+    validations:
+      required: false
+
+  - type: textarea
+    id: implementation_notes
+    attributes:
+      label: "Implementation Considerations (optional)"
+      description: "Any technical considerations for implementing this feature"
+      placeholder: |
+        - Potential implementation approaches
+        - Technical challenges you foresee
+        - Performance considerations
+        - Backward compatibility concerns
+        - Testing strategy considerations

@@ -1,0 +1,133 @@
+name: "💬 Other"
+description: "For discussions, questions, or issues that don't fit other categories"
+title: "[Other]: "
+labels: ["question", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Other Issues & Questions 💬
+
+        Thank you for reaching out! This form is for issues that don't fit into our other categories:
+
+        * 🐛 **Bug Report** - For reporting bugs or unexpected behavior
+        * 📖 **Documentation Issue** - For documentation errors or improvements  
+        * ✨ **Enhancement Request** - For improvements to existing features
+        * 🚀 **New Feature Request** - For completely new functionality
+
+        Use this form for general questions, discussions, support requests, or anything else related to kdebug.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Quick check"
+      description: "Please verify you have done the following"
+      options:
+        - label: "I have searched existing issues to avoid duplicates"
+          required: true
+        - label: "I have checked the README and documentation"
+          required: false
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: "Type of Issue"
+      description: "What best describes your issue or question?"
+      options:
+        - "General question about kdebug usage"
+        - "Support request or troubleshooting help"
+        - "Discussion about kdebug design or direction"
+        - "Community or contribution question"
+        - "Installation or setup help"
+        - "Compatibility question (K8s versions, platforms)"
+        - "Performance or scaling question"
+        - "Security-related question or concern"
+        - "Integration with other tools"
+        - "Something else"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: "Description"
+      description: "Please provide a detailed description of your question or issue"
+      placeholder: |
+        Be as specific as possible:
+        - What are you trying to accomplish?
+        - What specific questions do you have?
+        - What challenges are you facing?
+        - What context would help us understand your situation?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment (if relevant)"
+      description: "If this is related to technical issues, please provide environment details"
+      placeholder: |
+        - kdebug version:
+        - Operating System:
+        - Kubernetes cluster type:
+        - Kubernetes version:
+        - Any other relevant technical details
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: "Any additional information that might be helpful"
+      placeholder: |
+        - Related GitHub issues or discussions
+        - Links to relevant documentation
+        - Screenshots or logs (if applicable)
+        - Your use case or scenario
+        - What you've already tried
+
+  - type: textarea
+    id: references
+    attributes:
+      label: "References"
+      description: "Links to related resources, documentation, or external references"
+      placeholder: |
+        - GitHub issues (open or closed)
+        - Pull requests
+        - External documentation
+        - Blog posts or articles
+        - Kubernetes documentation
+
+        [How to reference GitHub Issues](https://help.github.com/articles/basic-writing-and-formatting-syntax/#referencing-issues-and-pull-requests)
+    validations:
+      required: false
+
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: "Urgency"
+      description: "How urgent is this for you?"
+      options:
+        - "Low - just curious or planning ahead"
+        - "Medium - needed for upcoming work"
+        - "High - blocking current work"
+        - "Critical - production issue"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: willing_to_contribute
+    attributes:
+      label: "Would you like to contribute?"
+      description: "Are you interested in helping with a solution or contributing to kdebug?"
+      options:
+        - "No"
+        - "Yes, I'd like to help but need guidance"
+        - "Yes, I have ideas and can implement them"
+        - "Yes, I can help with documentation"
+        - "Yes, I can help with testing"
+        - "Maybe, depending on the scope"
+    validations:
+      required: false

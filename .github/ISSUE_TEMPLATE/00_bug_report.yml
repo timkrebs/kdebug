@@ -1,0 +1,140 @@
+name: "🐛 Bug Report"
+description: "Report a bug or unexpected behavior in kdebug"
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Thank you for reporting a bug! 🐛
+        
+        Please help us identify and fix the issue by providing as much detail as possible.
+        Before submitting, please check if a similar issue already exists.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Pre-flight checklist"
+      description: "Please verify you have completed the following before submitting"
+      options:
+        - label: "I have searched existing issues and this is not a duplicate"
+          required: true
+        - label: "I have read the documentation and troubleshooting guides"
+          required: true
+        - label: "I am using the latest version of kdebug"
+          required: false
+
+  - type: textarea
+    id: bug_description
+    attributes:
+      label: "Bug Description"
+      description: "A clear and concise description of what the bug is"
+      placeholder: "Describe what happened and what you expected to happen"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: "Steps to Reproduce"
+      description: "Detailed steps to reproduce the behavior"
+      placeholder: |
+        1. Run command '...'
+        2. With these arguments '...'
+        3. See error
+      value: |
+        1. 
+        2. 
+        3. 
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: "Expected Behavior"
+      description: "A clear description of what you expected to happen"
+      placeholder: "What should have happened instead?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: "Actual Behavior"
+      description: "What actually happened? Include error messages if any"
+      placeholder: "Paste error messages, unexpected output, etc."
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: "Environment Information"
+      description: "Please provide details about your environment"
+      value: |
+        - kdebug version: (run `kdebug version`)
+        - Operating System: (e.g., macOS 13.0, Ubuntu 22.04, Windows 11)
+        - Kubernetes cluster type: (e.g., minikube, EKS, GKE, AKS, kind)
+        - Kubernetes version: (run `kubectl version --short`)
+        - kubectl version: (run `kubectl version --client --short`)
+        - Go version (if building from source): (run `go version`)
+    validations:
+      required: true
+
+  - type: textarea
+    id: command_output
+    attributes:
+      label: "Command Output"
+      description: "Full output of the failing command (run with `--verbose` flag for more details)"
+      render: shell
+      placeholder: "Paste the complete output here, including any error messages"
+
+  - type: textarea
+    id: kubectl_context
+    attributes:
+      label: "Kubernetes Context"
+      description: "Relevant kubectl context and cluster information"
+      render: shell
+      placeholder: |
+        kubectl config current-context
+        kubectl cluster-info
+        kubectl get nodes
+        (Remove any sensitive information)
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Add any other context about the problem here"
+      placeholder: |
+        - Screenshots (if relevant)
+        - Logs from related components
+        - Recent changes to cluster configuration
+        - Workarounds you've tried
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: "Bug Severity"
+      description: "How severe is this bug?"
+      options:
+        - "Low - Minor inconvenience, workaround available"
+        - "Medium - Significant impact, but functionality still usable"
+        - "High - Major functionality broken, no workaround"
+        - "Critical - kdebug completely unusable or data loss"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: willing_to_contribute
+    attributes:
+      label: "Would you like to work on fixing this bug?"
+      description: "Let us know if you're interested in contributing a fix"
+      options:
+        - "No"
+        - "Yes, I would like to work on this"
+        - "Yes, but I need guidance"
+    validations:
+      required: false

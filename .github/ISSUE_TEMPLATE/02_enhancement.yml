@@ -1,0 +1,169 @@
+name: "✨ Enhancement Request"
+description: "Suggest an improvement to an existing kdebug feature"
+title: "[Enhancement]: "
+labels: ["enhancement", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Enhancement Request ✨
+        
+        Thank you for suggesting an improvement to kdebug! 
+        Enhancements help make existing features better for everyone.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Pre-submission checklist"
+      description: "Please verify you have completed the following"
+      options:
+        - label: "I have searched existing issues and feature requests"
+          required: true
+        - label: "I have checked the roadmap to see if this is already planned"
+          required: true
+        - label: "This is an improvement to an existing feature (not a new feature)"
+          required: true
+
+  - type: input
+    id: feature_name
+    attributes:
+      label: "Feature/Component to Enhance"
+      description: "Which existing kdebug feature would you like to improve?"
+      placeholder: "e.g., pod diagnostics, cluster health checks, DNS testing, output formatting"
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_behavior
+    attributes:
+      label: "Current Behavior"
+      description: "How does the feature currently work?"
+      placeholder: "Describe the current state of the feature you want to enhance"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_enhancement
+    attributes:
+      label: "Proposed Enhancement"
+      description: "What improvement would you like to see?"
+      placeholder: |
+        Describe your enhancement idea in detail:
+        - What should change?
+        - How should it work differently?
+        - What new capabilities should it have?
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: "Motivation and Use Case"
+      description: "Why is this enhancement important? What problem does it solve?"
+      placeholder: |
+        Explain:
+        - What problems does this solve?
+        - What scenarios would benefit from this enhancement?
+        - How would this improve the user experience?
+        - Any specific pain points this addresses?
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: "Expected Behavior After Enhancement"
+      description: "How should the feature work after your enhancement?"
+      placeholder: "Describe the improved user experience and functionality"
+    validations:
+      required: true
+
+  - type: textarea
+    id: examples
+    attributes:
+      label: "Examples"
+      description: "Provide concrete examples of how the enhancement would be used"
+      placeholder: |
+        Include:
+        - Command examples
+        - Expected output
+        - Usage scenarios
+        - Before/after comparisons if helpful
+      render: shell
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: "Alternatives Considered"
+      description: "What alternative approaches have you considered?"
+      placeholder: |
+        - Other ways to achieve the same goal
+        - Why your proposed approach is better
+        - Trade-offs and considerations
+
+  - type: dropdown
+    id: user_impact
+    attributes:
+      label: "User Impact"
+      description: "How many users would benefit from this enhancement?"
+      options:
+        - "Most users - this affects core functionality"
+        - "Many users - this is a commonly used feature"
+        - "Some users - this helps specific use cases"
+        - "Few users - this is for specialized scenarios"
+        - "Not sure"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: complexity
+    attributes:
+      label: "Implementation Complexity (your estimate)"
+      description: "How complex do you think this enhancement would be to implement?"
+      options:
+        - "Low - simple changes to existing code"
+        - "Medium - moderate changes or new logic"
+        - "High - significant changes or new components"
+        - "Very High - major architectural changes"
+        - "Not sure"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: breaking_changes
+    attributes:
+      label: "Breaking Changes"
+      description: "Would this enhancement require breaking changes to existing functionality?"
+      options:
+        - "No breaking changes expected"
+        - "Minor breaking changes that could be handled with deprecation"
+        - "Significant breaking changes required"
+        - "Not sure"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: "Additional Context"
+      description: "Any other information that would help evaluate this enhancement"
+      placeholder: |
+        - Links to related issues or discussions
+        - Screenshots or mockups
+        - References to similar features in other tools
+        - Performance considerations
+        - Security implications
+
+  - type: dropdown
+    id: willing_to_contribute
+    attributes:
+      label: "Would you like to implement this enhancement?"
+      description: "Let us know if you're interested in contributing the code"
+      options:
+        - "No"
+        - "Yes, I would like to work on this"
+        - "Yes, but I need guidance"
+        - "Yes, but only if it's approved first"
+    validations:
+      required: false

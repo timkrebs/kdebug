@@ -1,0 +1,134 @@
+name: "📖 Documentation Issue"
+description: "Report a documentation error or request documentation improvements"
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # Documentation Issue 📖
+        
+        Help us improve kdebug's documentation! Whether you found an error, something unclear, 
+        or want to suggest improvements, we appreciate your feedback.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: "Pre-submission checklist"
+      description: "Please verify you have completed the following"
+      options:
+        - label: "I have searched existing issues to avoid duplicates"
+          required: true
+        - label: "I have checked the latest version of the documentation"
+          required: true
+
+  - type: dropdown
+    id: issue_type
+    attributes:
+      label: "Type of Documentation Issue"
+      description: "What kind of documentation issue is this?"
+      options:
+        - "Error or inaccuracy in existing documentation"
+        - "Missing documentation for existing feature"
+        - "Unclear or confusing explanation"
+        - "Outdated information"
+        - "Broken links or formatting"
+        - "Request for new documentation"
+        - "Translation issue"
+        - "Other"
+    validations:
+      required: true
+
+  - type: input
+    id: documentation_location
+    attributes:
+      label: "Documentation Location"
+      description: "Where is the documentation issue located?"
+      placeholder: "e.g., README.md, docs/installation.md, CLI help text, website URL"
+    validations:
+      required: true
+
+  - type: textarea
+    id: issue_description
+    attributes:
+      label: "Issue Description"
+      description: "Describe the documentation issue in detail"
+      placeholder: |
+        What's wrong with the current documentation?
+        What information is missing or incorrect?
+        What's confusing or unclear?
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_content
+    attributes:
+      label: "Current Content (if applicable)"
+      description: "Copy the current documentation content that needs to be fixed"
+      render: markdown
+      placeholder: "Paste the current text here"
+
+  - type: textarea
+    id: suggested_improvement
+    attributes:
+      label: "Suggested Improvement"
+      description: "How should the documentation be improved?"
+      render: markdown
+      placeholder: |
+        Provide your suggested changes, corrections, or additions.
+        If you're reporting an error, please suggest the correct information.
+
+  - type: textarea
+    id: context
+    attributes:
+      label: "Additional Context"
+      description: "Any additional context that would help us understand the issue"
+      placeholder: |
+        - Who is the target audience for this documentation?
+        - What were you trying to accomplish when you found this issue?
+        - Are there examples or related documentation that could help?
+        - Screenshots (if relevant for formatting/visual issues)
+
+  - type: dropdown
+    id: user_type
+    attributes:
+      label: "User Type"
+      description: "Which best describes you?"
+      options:
+        - "New user trying kdebug for the first time"
+        - "Experienced user familiar with kdebug"
+        - "Developer contributing to kdebug"
+        - "DevOps/Platform engineer"
+        - "Kubernetes beginner"
+        - "Kubernetes expert"
+        - "Technical writer"
+        - "Other"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: "Priority"
+      description: "How important is fixing this documentation issue?"
+      options:
+        - "Low - Minor improvement or nice-to-have"
+        - "Medium - Would help several users"
+        - "High - Blocking users or causing confusion"
+        - "Critical - Incorrect information that could cause problems"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: willing_to_contribute
+    attributes:
+      label: "Would you like to help fix this documentation?"
+      description: "We welcome documentation contributions!"
+      options:
+        - "No"
+        - "Yes, I would like to submit a PR with the fix"
+        - "Yes, but I need guidance on how to contribute"
+        - "Yes, but I can only provide the suggestions above"
+    validations:
+      required: false
