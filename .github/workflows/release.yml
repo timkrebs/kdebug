@@ -1,0 +1,152 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  GO_VERSION: '1.21'
+
+jobs:
+  test:
+    name: Test Before Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Run tests
+      run: make test
+
+    - name: Run integration tests
+      run: |
+        # Set up kind cluster
+        go install sigs.k8s.io/kind@latest
+        kind create cluster --name release-test --wait 60s
+        
+        # Run integration tests
+        export KUBECONFIG=$HOME/.kube/config
+        go test -tags integration -v ./test/integration/...
+        
+        # Cleanup
+        kind delete cluster --name release-test
+
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [test]
+    permissions:
+      contents: write
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: ${{ env.GO_VERSION }}
+
+    - name: Get version from tag
+      id: version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+    - name: Build cross-platform binaries
+      run: |
+        # Update version in Makefile
+        sed -i "s/VERSION=0.1.0-dev/VERSION=${{ steps.version.outputs.VERSION }}/g" Makefile
+        make build-all
+
+    - name: Create checksums
+      run: |
+        cd bin
+        sha256sum * > checksums.txt
+
+    - name: Generate changelog
+      id: changelog
+      run: |
+        if [ -f CHANGELOG.md ]; then
+          # Extract changelog for this version
+          awk '/^## \[${{ steps.version.outputs.VERSION }}\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md > release_notes.md
+        else
+          echo "Release ${{ steps.version.outputs.VERSION }}" > release_notes.md
+          echo "" >> release_notes.md
+          echo "### Changes" >> release_notes.md
+          git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> release_notes.md
+        fi
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        body_path: release_notes.md
+        files: |
+          bin/kdebug-*
+          bin/checksums.txt
+        draft: false
+        prerelease: ${{ contains(steps.version.outputs.VERSION, 'rc') || contains(steps.version.outputs.VERSION, 'beta') || contains(steps.version.outputs.VERSION, 'alpha') }}
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata for Docker
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=tag
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=semver,pattern={{major}}
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+
+    - name: Update Homebrew Formula
+      if: ${{ !contains(steps.version.outputs.VERSION, 'rc') && !contains(steps.version.outputs.VERSION, 'beta') && !contains(steps.version.outputs.VERSION, 'alpha') }}
+      run: |
+        # This would update a Homebrew formula
+        # For now, just create instructions
+        echo "To update Homebrew formula:" >> release_notes.md
+        echo "1. Update the URL and SHA256 in the formula" >> release_notes.md
+        echo "2. Submit PR to homebrew-core or your tap" >> release_notes.md
+
+  notify:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [release]
+    if: always()
+    steps:
+    - name: Notify on success
+      if: needs.release.result == 'success'
+      run: |
+        echo "✅ Release ${{ github.ref_name }} was successful!"
+        # Add notification logic here (Slack, Discord, etc.)
+
+    - name: Notify on failure
+      if: needs.release.result == 'failure'
+      run: |
+        echo "❌ Release ${{ github.ref_name }} failed!"
+        # Add notification logic here (Slack, Discord, etc.)
