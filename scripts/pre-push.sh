@@ -113,8 +113,9 @@ fi
 
 # Step 7: Linting
 print_step "Running linter"
-if command -v golangci-lint >/dev/null 2>&1; then
-    if golangci-lint run; then
+# Always use the latest version from GOPATH
+if [ -f "$(go env GOPATH)/bin/golangci-lint" ]; then
+    if $(go env GOPATH)/bin/golangci-lint run --timeout=5m; then
         print_success "Linting passed"
     else
         print_error "Linting failed - please fix the issues above"
@@ -123,7 +124,7 @@ if command -v golangci-lint >/dev/null 2>&1; then
 else
     print_warning "golangci-lint not found, installing..."
     go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
-    if $(go env GOPATH)/bin/golangci-lint run; then
+    if $(go env GOPATH)/bin/golangci-lint run --timeout=5m; then
         print_success "Linting passed"
     else
         print_error "Linting failed - please fix the issues above"
@@ -133,8 +134,8 @@ fi
 
 # Step 8: Security scan
 print_step "Running security scan"
-if command -v gosec >/dev/null 2>&1; then
-    if gosec ./...; then
+if [ -f "$(go env GOPATH)/bin/gosec" ]; then
+    if $(go env GOPATH)/bin/gosec ./...; then
         print_success "Security scan passed"
     else
         print_warning "Security scan found issues (non-blocking)"
@@ -151,8 +152,8 @@ fi
 
 # Step 9: Vulnerability check
 print_step "Running vulnerability check"
-if command -v govulncheck >/dev/null 2>&1; then
-    if govulncheck ./...; then
+if [ -f "$(go env GOPATH)/bin/govulncheck" ]; then
+    if $(go env GOPATH)/bin/govulncheck ./...; then
         print_success "Vulnerability check passed"
     else
         print_error "Vulnerability check failed"
