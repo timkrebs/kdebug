@@ -107,6 +107,7 @@ deps:
 dev-deps:
 	@echo "Installing development dependencies..."
 	$(GOGET) github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	$(GOGET) github.com/securego/gosec/v2/cmd/gosec@latest
 	$(GOGET) golang.org/x/vuln/cmd/govulncheck@latest
 	@echo "Installing kind for integration tests..."
 	$(GOGET) sigs.k8s.io/kind@latest
@@ -144,11 +145,11 @@ test-all: test test-integration
 ## Run security checks
 security:
 	@echo "Running security checks..."
-	@which gosec > /dev/null || $(GOGET) github.com/securecodewarrior/gosec/v2/cmd/gosec@latest
-	gosec ./...
+	@which gosec > /dev/null || $(GOGET) github.com/securego/gosec/v2/cmd/gosec@latest
+	$(shell go env GOPATH)/bin/gosec ./...
 	@echo "Running vulnerability check..."
 	@which govulncheck > /dev/null || $(GOGET) golang.org/x/vuln/cmd/govulncheck@latest
-	govulncheck ./...
+	$(shell go env GOPATH)/bin/govulncheck ./...
 
 ## Run all quality checks
 quality: fmt vet lint security test-coverage
