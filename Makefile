@@ -109,6 +109,7 @@ dev-deps:
 	$(GOGET) github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	$(GOGET) github.com/securego/gosec/v2/cmd/gosec@latest
 	$(GOGET) golang.org/x/vuln/cmd/govulncheck@latest
+	$(GOGET) mvdan.cc/gofumpt@latest
 	@echo "Installing kind for integration tests..."
 	$(GOGET) sigs.k8s.io/kind@latest
 
@@ -158,6 +159,17 @@ quality: fmt vet lint security test-coverage
 release: clean quality build-all
 	@echo "Release build completed"
 
+## Format code with gofumpt
+fmt-gofumpt:
+	@echo "Formatting code with gofumpt..."
+	@which gofumpt > /dev/null || $(GOGET) mvdan.cc/gofumpt@latest
+	$(shell go env GOPATH)/bin/gofumpt -w .
+
+## Run pre-push validation
+pre-push:
+	@echo "Running pre-push validation..."
+	./scripts/pre-push.sh
+
 ## Show help
 help:
 	@echo "Available targets:"
@@ -181,5 +193,7 @@ help:
 	@echo "  install            - Install binary to GOPATH/bin"
 	@echo "  run                - Build and run the binary"
 	@echo "  run-cluster        - Build and run cluster command"
+	@echo "  fmt-gofumpt        - Format code with gofumpt"
+	@echo "  pre-push           - Run pre-push validation"
 	@echo "  release            - Create release build"
 	@echo "  help               - Show this help"
