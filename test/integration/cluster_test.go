@@ -409,7 +409,7 @@ func extractJSON(output string) string {
 	if start == -1 {
 		return ""
 	}
-	
+
 	// Find the matching closing brace
 	braceCount := 0
 	end := -1
@@ -424,11 +424,11 @@ func extractJSON(output string) string {
 			}
 		}
 	}
-	
+
 	if end == -1 {
 		return ""
 	}
-	
+
 	return output[start:end]
 }
 
