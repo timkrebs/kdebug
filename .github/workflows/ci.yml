@@ -203,7 +203,7 @@ jobs:
       run: $(go env GOPATH)/bin/govulncheck ./...
 
   docker:
-    name: Docker Build & Push
+    name: Docker Build & Push Image
     runs-on: ubuntu-latest
     needs: [integration-test]
     permissions:
@@ -257,7 +257,7 @@ jobs:
     # Compare the image built in the pull request with the one in production
     - name: Docker Scout
       id: docker-scout
-      if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'push' }}
       uses: docker/scout-action@v1
       with:
         command: compare
