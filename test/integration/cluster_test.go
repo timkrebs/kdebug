@@ -377,27 +377,16 @@ func scaleDeployment(t *testing.T, name, namespace string, replicas int) {
 }
 
 func validateJSONOutput(t *testing.T, outputStr string) {
-	// Try to find JSON in the output (might be mixed with other messages)
-	lines := strings.Split(outputStr, "\n")
-	var jsonStr string
-
-	// Look for JSON starting with {
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.HasPrefix(line, "{") {
-			jsonStr = line
-			break
-		}
-	}
-
-	// If no single-line JSON found, try to parse the entire output
+	// Extract JSON from the output (might be mixed with other messages)
+	jsonStr := extractJSON(outputStr)
 	if jsonStr == "" {
-		jsonStr = outputStr
+		t.Errorf("No JSON found in output: %s", outputStr)
+		return
 	}
 
 	var report output.DiagnosticReport
 	if err := json.Unmarshal([]byte(jsonStr), &report); err != nil {
-		t.Errorf("Invalid JSON output: %v\nOutput: %s", err, outputStr)
+		t.Errorf("Invalid JSON output: %v\nExtracted JSON: %s\nFull Output: %s", err, jsonStr, outputStr)
 		return
 	}
 
@@ -411,6 +400,36 @@ func validateJSONOutput(t *testing.T, outputStr string) {
 	if len(report.Checks) == 0 {
 		t.Error("JSON output missing checks")
 	}
+}
+
+// extractJSON attempts to extract JSON from mixed output
+func extractJSON(output string) string {
+	// Look for JSON starting with { and ending with }
+	start := strings.Index(output, "{")
+	if start == -1 {
+		return ""
+	}
+	
+	// Find the matching closing brace
+	braceCount := 0
+	end := -1
+	for i := start; i < len(output); i++ {
+		if output[i] == '{' {
+			braceCount++
+		} else if output[i] == '}' {
+			braceCount--
+			if braceCount == 0 {
+				end = i + 1
+				break
+			}
+		}
+	}
+	
+	if end == -1 {
+		return ""
+	}
+	
+	return output[start:end]
 }
 
 func validateYAMLOutput(t *testing.T, output string) {
