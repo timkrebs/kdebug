@@ -30,13 +30,18 @@ func NewKubernetesClient(kubeconfig string) (*KubernetesClient, error) {
 		// Try in-cluster config first
 		config, err = rest.InClusterConfig()
 		if err != nil {
-			// Fall back to kubeconfig file
-			kubeconfig = getDefaultKubeconfigPath()
+			// Fall back to kubeconfig file using proper loading rules
+			// This handles KUBECONFIG env var and default paths correctly
+			loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+			configOverrides := &clientcmd.ConfigOverrides{}
+			clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+			config, err = clientConfig.ClientConfig()
+			if err != nil {
+				return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
+			}
 		}
-	}
-
-	if config == nil {
-		// Load config from kubeconfig file
+	} else {
+		// Load config from specific kubeconfig file
 		config, err = clientcmd.BuildConfigFromFlags("", kubeconfig)
 		if err != nil {
 			return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
@@ -50,10 +55,7 @@ func NewKubernetesClient(kubeconfig string) (*KubernetesClient, error) {
 	}
 
 	// Get current context
-	context, err := getCurrentContext(kubeconfig)
-	if err != nil {
-		context = "unknown"
-	}
+	context := getCurrentContextFromConfig(config, kubeconfig)
 
 	return &KubernetesClient{
 		Clientset: clientset,
@@ -115,6 +117,26 @@ func getDefaultKubeconfigPath() string {
 	}
 
 	return ""
+}
+
+// getCurrentContextFromConfig returns the current context from the loaded config
+func getCurrentContextFromConfig(config *rest.Config, kubeconfig string) string {
+	// If we have a specific kubeconfig file, try to get context from it
+	if kubeconfig != "" {
+		if rawConfig, err := clientcmd.LoadFromFile(kubeconfig); err == nil {
+			return rawConfig.CurrentContext
+		}
+	}
+
+	// Fall back to getting context using default loading rules
+	loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+	configOverrides := &clientcmd.ConfigOverrides{}
+	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(loadingRules, configOverrides)
+	if rawConfig, err := clientConfig.RawConfig(); err == nil {
+		return rawConfig.CurrentContext
+	}
+
+	return "unknown"
 }
 
 // getCurrentContext returns the current context from kubeconfig
