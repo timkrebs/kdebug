@@ -256,6 +256,9 @@ jobs:
     name: Call Release Workflow
     needs: [test, lint, integration-test, build, security-scan, vulnerability-check, docker]
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+      packages: write
     uses: ./.github/workflows/release.yml
     with:
       version: v0.1.0-dev-${{ github.run_number }}
