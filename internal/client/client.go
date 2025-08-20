@@ -120,7 +120,7 @@ func getDefaultKubeconfigPath() string {
 }
 
 // getCurrentContextFromConfig returns the current context from the loaded config
-func getCurrentContextFromConfig(config *rest.Config, kubeconfig string) string {
+func getCurrentContextFromConfig(_ *rest.Config, kubeconfig string) string {
 	// If we have a specific kubeconfig file, try to get context from it
 	if kubeconfig != "" {
 		if rawConfig, err := clientcmd.LoadFromFile(kubeconfig); err == nil {
