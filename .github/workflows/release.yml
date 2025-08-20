@@ -16,8 +16,7 @@ on:
         required: false
         default: false
         type: boolean
-  repository_dispatch:
-    types: [ci-success]
+
   workflow_dispatch:
     inputs:
       version:
@@ -51,18 +50,13 @@ jobs:
           echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           echo "create_release=true" >> $GITHUB_OUTPUT
           echo "is_tag=true" >> $GITHUB_OUTPUT
-        elif [[ "${{ github.event_name }}" == "repository_dispatch" ]]; then
-          # CI-triggered dev release
-          echo "version=${{ github.event.client_payload.version }}" >> $GITHUB_OUTPUT
-          echo "create_release=false" >> $GITHUB_OUTPUT
-          echo "is_tag=false" >> $GITHUB_OUTPUT
         elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
           # Manual dispatch
           echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
           echo "create_release=${{ github.event.inputs.create_release }}" >> $GITHUB_OUTPUT
           echo "is_tag=false" >> $GITHUB_OUTPUT
         elif [[ "${{ github.event_name }}" == "workflow_call" ]]; then
-          # Called from another workflow
+          # Called from another workflow (CI success)
           echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
           echo "create_release=${{ inputs.create_release }}" >> $GITHUB_OUTPUT
           echo "is_tag=false" >> $GITHUB_OUTPUT
@@ -78,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [setup]
     # Skip tests for CI-triggered releases (tests already passed in CI)
-    if: github.event_name != 'repository_dispatch'
+    if: github.event_name != 'workflow_call'
     steps:
     - uses: actions/checkout@v4
 
