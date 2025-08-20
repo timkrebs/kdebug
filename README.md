@@ -2,12 +2,12 @@
 
 # kdebug
 
-[![Go Version](https://img.shields.io/github/go-mod/go-version/username/kdebug)](https://golang.org/)
-[![License](https://img.shields.io/github/license/username/kdebug)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/username/kdebug)](https://github.com/username/kdebug/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/username/kdebug)](https://goreportcard.com/report/github.com/username/kdebug)
-[![Contributors](https://img.shields.io/github/contributors/username/kdebug)](https://github.com/username/kdebug/graphs/contributors)
-
+[![Go Version](https://img.shields.io/github/go-mod/go-version/timkrebs/kdebug)](https://golang.org/)
+[![License](https://img.shields.io/github/license/timkrebs/kdebug)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/timkrebs/kdebug)](https://github.com/timkrebs/kdebug/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/timkrebs/kdebug)](https://goreportcard.com/report/github.com/timkrebs/kdebug)
+[![Contributors](https://img.shields.io/github/contributors/timkrebs/kdebug)](https://github.com/timkrebs/kdebug/graphs/contributors)
+[![CI](https://github.com/timkrebs/kdebug/actions/workflows/ci.yml/badge.svg)](https://github.com/timkrebs/kdebug/actions/workflows/ci.yml)
 > 🩺 A CLI tool that automatically diagnoses common Kubernetes issues and provides actionable suggestions.
 
 Think of it as a "doctor" for Kubernetes clusters (like `brew doctor`, but for K8s). Get instant insights into what's wrong with your workloads and how to fix them.
