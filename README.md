@@ -73,7 +73,7 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
 ### Install from Release (Recommended)
 ```bash
 # Download the latest release for your platform
-curl -LO https://github.com/username/kdebug/releases/latest/download/kdebug-linux-amd64
+curl -LO https://github.com/timkrebs/kdebug/releases/latest/download/kdebug-linux-amd64
 chmod +x kdebug-linux-amd64
 sudo mv kdebug-linux-amd64 /usr/local/bin/kdebug
 
@@ -83,12 +83,25 @@ kdebug version
 
 ### Install via Go
 ```bash
-go install github.com/username/kdebug@latest
+go install github.com/timkrebs/kdebug@latest
+```
+
+### Install via Docker
+```bash
+# Pull the latest image
+docker pull timkrebs/kdebug:latest
+
+# Run with your kubeconfig
+docker run --rm -v ~/.kube:/root/.kube timkrebs/kdebug:latest cluster
+
+# Or create an alias for easier use
+alias kdebug='docker run --rm -v ~/.kube:/root/.kube timkrebs/kdebug:latest'
+kdebug cluster --help
 ```
 
 ### Build from Source
 ```bash
-git clone https://github.com/username/kdebug.git
+git clone https://github.com/timkrebs/kdebug.git
 cd kdebug
 make build
 sudo cp bin/kdebug /usr/local/bin/
