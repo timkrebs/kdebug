@@ -8,6 +8,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/timkrebs/kdebug)](https://goreportcard.com/report/github.com/timkrebs/kdebug)
 [![Contributors](https://img.shields.io/github/contributors/timkrebs/kdebug)](https://github.com/timkrebs/kdebug/graphs/contributors)
 [![CI](https://github.com/timkrebs/kdebug/actions/workflows/ci.yml/badge.svg)](https://github.com/timkrebs/kdebug/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/timkrebs/kdebug/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/timkrebs/kdebug/actions/workflows/github-code-scanning/codeql)
 > 🩺 A CLI tool that automatically diagnoses common Kubernetes issues and provides actionable suggestions.
 
 Think of it as a "doctor" for Kubernetes clusters (like `brew doctor`, but for K8s). Get instant insights into what's wrong with your workloads and how to fix them.
