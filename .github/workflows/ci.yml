@@ -8,6 +8,9 @@ on:
 
 env:
   GO_VERSION: '1.23'  # Using stable Go version for CI
+  REGISTRY: docker.io # Docker Hub registry
+  IMAGE_NAME: ${{ secrets.DOCKERHUB_USERNAME }}/kdebug # Docker Hub image name
+  SHA: ${{ github.event.pull_request.head.sha || github.event.after }}
 
 jobs:
   test:
@@ -250,6 +253,19 @@ jobs:
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
+
+    # Compare the image built in the pull request with the one in production
+    - name: Docker Scout
+      id: docker-scout
+      if: ${{ github.event_name == 'pull_request' }}
+      uses: docker/scout-action@v1
+      with:
+        command: compare
+        image: ${{ steps.meta.outputs.tags }}
+        to-env: production
+        ignore-unchanged: true
+        only-severities: critical,high
+        github-token: ${{ secrets.GITHUB_TOKEN }}
 
   # Trigger release workflow after successful CI on main branch
   call-release:
