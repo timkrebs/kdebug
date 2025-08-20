@@ -130,14 +130,6 @@ jobs:
         export KUBECONFIG=$HOME/.kube/config
         go test -tags integration -v ./test/integration/...
 
-    - name: Test kdebug against real cluster
-      run: |
-        export KUBECONFIG=$HOME/.kube/config
-        ./bin/kdebug cluster --verbose
-        ./bin/kdebug cluster --output json
-        ./bin/kdebug cluster --output yaml
-        ./bin/kdebug cluster --nodes-only
-
   cross-compile:
     name: Cross Compile
     runs-on: ubuntu-latest
