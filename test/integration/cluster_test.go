@@ -380,7 +380,7 @@ func validateJSONOutput(t *testing.T, outputStr string) {
 	// Try to find JSON in the output (might be mixed with other messages)
 	lines := strings.Split(outputStr, "\n")
 	var jsonStr string
-	
+
 	// Look for JSON starting with {
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
@@ -389,7 +389,7 @@ func validateJSONOutput(t *testing.T, outputStr string) {
 			break
 		}
 	}
-	
+
 	// If no single-line JSON found, try to parse the entire output
 	if jsonStr == "" {
 		jsonStr = outputStr
