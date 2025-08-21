@@ -139,8 +139,8 @@ func (d *PodDiagnostic) checkPodBasicStatus(info *PodInfo) output.CheckResult {
 }
 
 // checkPodScheduling checks for pod scheduling issues.
-func (d *PodDiagnostic) checkPodScheduling(ctx context.Context, info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+func (d *PodDiagnostic) checkPodScheduling(_ context.Context, info *PodInfo) []output.CheckResult {
+	checks := make([]output.CheckResult, 0, 3) // Pre-allocate for expected number of checks
 	pod := info.Pod
 
 	// Check if pod is scheduled
@@ -264,8 +264,8 @@ func (d *PodDiagnostic) checkImageIssues(info *PodInfo) []output.CheckResult {
 }
 
 // checkRBACPermissions validates RBAC permissions for the pod.
-func (d *PodDiagnostic) checkRBACPermissions(ctx context.Context, info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+func (d *PodDiagnostic) checkRBACPermissions(_ context.Context, info *PodInfo) []output.CheckResult {
+	checks := make([]output.CheckResult, 0, 2) // Pre-allocate for expected number of checks
 	pod := info.Pod
 
 	// Check if service account exists
@@ -784,7 +784,7 @@ func (d *PodDiagnostic) checkQoSClass(pod *corev1.Pod) output.CheckResult {
 
 func (d *PodDiagnostic) checkResourceRequests(pod *corev1.Pod) output.CheckResult {
 	var hasRequests, hasLimits bool
-	var containers []string
+	containers := make([]string, 0, len(pod.Spec.Containers)) // Pre-allocate based on container count
 
 	for _, container := range pod.Spec.Containers {
 		if len(container.Resources.Requests) > 0 {
@@ -799,19 +799,20 @@ func (d *PodDiagnostic) checkResourceRequests(pod *corev1.Pod) output.CheckResul
 	var status output.CheckStatus
 	var message, suggestion string
 
-	if hasRequests && hasLimits {
+	switch {
+	case hasRequests && hasLimits:
 		status = output.StatusPassed
 		message = "Resource requests and limits are configured"
 		suggestion = "Good practice - helps with scheduling and prevents resource abuse"
-	} else if hasRequests {
+	case hasRequests:
 		status = output.StatusWarning
 		message = "Resource requests configured but no limits"
 		suggestion = "Consider adding resource limits to prevent containers from consuming excessive resources"
-	} else if hasLimits {
+	case hasLimits:
 		status = output.StatusWarning
 		message = "Resource limits configured but no requests"
 		suggestion = "Consider adding resource requests to help with pod scheduling"
-	} else {
+	default:
 		status = output.StatusWarning
 		message = "No resource requests or limits configured"
 		suggestion = "Consider adding resource requests and limits for better scheduling and resource management"

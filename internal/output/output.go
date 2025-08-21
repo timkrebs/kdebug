@@ -237,60 +237,6 @@ func (o *OutputManager) printTable(report *DiagnosticReport) error {
 	return nil
 }
 
-// groupChecksByCategory groups checks by their category for better organization
-func (o *OutputManager) groupChecksByCategory(checks []CheckResult) map[string][]CheckResult {
-	groups := make(map[string][]CheckResult)
-
-	for _, check := range checks {
-		category := o.extractCategory(check.Name)
-		groups[category] = append(groups[category], check)
-	}
-
-	// Ensure consistent ordering
-	orderedCategories := []string{"Status", "Scheduling", "Image", "RBAC", "Init Containers", "Resource", "Network", "DNS", "Other"}
-	orderedGroups := make(map[string][]CheckResult)
-
-	for _, category := range orderedCategories {
-		if checks, exists := groups[category]; exists {
-			orderedGroups[category] = checks
-		}
-	}
-
-	// Add any remaining categories
-	for category, checks := range groups {
-		if _, exists := orderedGroups[category]; !exists {
-			orderedGroups[category] = checks
-		}
-	}
-
-	return orderedGroups
-}
-
-// extractCategory extracts category from check name
-func (o *OutputManager) extractCategory(checkName string) string {
-	// Define category mappings
-	categoryMappings := map[string]string{
-		"Pod Status":      "Status",
-		"Pod Scheduling":  "Scheduling",
-		"Node":            "Scheduling",
-		"Resource Fit":    "Scheduling",
-		"Image Pull":      "Image",
-		"RBAC":            "RBAC",
-		"Init Containers": "Init Containers",
-		"Resource":        "Resource",
-		"Network":         "Network",
-		"DNS":             "DNS",
-	}
-
-	for prefix, category := range categoryMappings {
-		if strings.Contains(checkName, prefix) {
-			return category
-		}
-	}
-
-	return "Other"
-}
-
 // formatStatusClean returns a clean pytest-style status indicator
 func (o *OutputManager) formatStatusClean(status CheckStatus) string {
 	switch status {
@@ -305,55 +251,6 @@ func (o *OutputManager) formatStatusClean(status CheckStatus) string {
 	default:
 		return colorize("UNKNOWN", ColorWhite)
 	}
-}
-
-// formatStatusProfessional returns a professional status indicator (legacy)
-func (o *OutputManager) formatStatusProfessional(status CheckStatus) string {
-	switch status {
-	case StatusPassed:
-		return colorize("PASS", ColorGreen)
-	case StatusFailed:
-		return colorize("FAIL", ColorRed)
-	case StatusWarning:
-		return colorize("WARN", ColorYellow)
-	case StatusSkipped:
-		return colorize("SKIP", ColorCyan)
-	default:
-		return colorize("UNKNOWN", ColorWhite)
-	}
-}
-
-// printSummarySection prints a formatted summary section
-func (o *OutputManager) printSummarySection(title string, summary Summary) {
-	fmt.Printf("   %-20s: %d total checks executed\n", "Tests Executed", summary.Total)
-	fmt.Printf("   %-20s: %d (%.1f%%)\n", "Passed", summary.Passed, float64(summary.Passed)/float64(summary.Total)*100)
-
-	if summary.Failed > 0 {
-		fmt.Printf("   %-20s: %d (%.1f%%) 🚨\n", "Failed", summary.Failed, float64(summary.Failed)/float64(summary.Total)*100)
-	}
-
-	if summary.Warnings > 0 {
-		fmt.Printf("   %-20s: %d (%.1f%%) ⚠️\n", "Warnings", summary.Warnings, float64(summary.Warnings)/float64(summary.Total)*100)
-	}
-
-	if summary.Skipped > 0 {
-		fmt.Printf("   %-20s: %d (%.1f%%)\n", "Skipped", summary.Skipped, float64(summary.Skipped)/float64(summary.Total)*100)
-	}
-
-	// Health score
-	healthScore := float64(summary.Passed) / float64(summary.Total-summary.Skipped) * 100
-	fmt.Printf("   %-20s: %.1f%%", "Health Score", healthScore)
-
-	if healthScore >= 90 {
-		fmt.Printf(" 🟢 EXCELLENT")
-	} else if healthScore >= 70 {
-		fmt.Printf(" 🟡 GOOD")
-	} else if healthScore >= 50 {
-		fmt.Printf(" 🟠 FAIR")
-	} else {
-		fmt.Printf(" 🔴 CRITICAL")
-	}
-	fmt.Println()
 }
 
 // formatStatus returns a colored status indicator (legacy function for compatibility)
