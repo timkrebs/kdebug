@@ -197,8 +197,8 @@ func (d *PodDiagnostic) WatchPod(podName string, config DiagnosticConfig) error 
 			}
 
 			if err := d.output.PrintReport(report); err != nil {
-			d.output.PrintWarning(fmt.Sprintf("Failed to print report: %v", err))
-		}
+				d.output.PrintWarning(fmt.Sprintf("Failed to print report: %v", err))
+			}
 			d.output.PrintInfo("Waiting for next change...")
 
 		case watch.Deleted:

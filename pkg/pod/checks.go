@@ -15,7 +15,7 @@ import (
 
 // runDiagnosticChecks executes all diagnostic checks for a pod.
 func (d *PodDiagnostic) runDiagnosticChecks(ctx context.Context, info *PodInfo, config DiagnosticConfig) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, 20) // Pre-allocate for expected number of checks
 
 	// Determine which checks to run
 	checkTypes := config.Checks
@@ -182,7 +182,7 @@ func (d *PodDiagnostic) checkPodScheduling(_ context.Context, info *PodInfo) []o
 
 // checkImageIssues checks for image pull problems.
 func (d *PodDiagnostic) checkImageIssues(info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, len(info.Pod.Status.ContainerStatuses)+len(info.Pod.Status.InitContainerStatuses)) // Pre-allocate based on containers
 	pod := info.Pod
 
 	// Check container image statuses
@@ -229,16 +229,19 @@ func (d *PodDiagnostic) checkImageIssues(info *PodInfo) []output.CheckResult {
 					})
 				}
 			}
-		} else if status.State.Running != nil || status.State.Terminated != nil {
-			// Image pulled successfully
-			checks = append(checks, output.CheckResult{
-				Name:    fmt.Sprintf("Container %s - Image Pull", status.Name),
-				Status:  output.StatusPassed,
-				Message: "Image pulled successfully",
-				Details: map[string]string{
-					"image": status.Image,
-				},
-			})
+		} else {
+			switch {
+			case status.State.Running != nil, status.State.Terminated != nil:
+				// Image pulled successfully
+				checks = append(checks, output.CheckResult{
+					Name:    fmt.Sprintf("Container %s - Image Pull", status.Name),
+					Status:  output.StatusPassed,
+					Message: "Image pulled successfully",
+					Details: map[string]string{
+						"image": status.Image,
+					},
+				})
+			}
 		}
 	}
 
@@ -269,7 +272,8 @@ func (d *PodDiagnostic) checkRBACPermissions(_ context.Context, info *PodInfo) [
 	pod := info.Pod
 
 	// Check if service account exists
-	if pod.Spec.ServiceAccountName == "" {
+	switch {
+	case pod.Spec.ServiceAccountName == "":
 		checks = append(checks, output.CheckResult{
 			Name:    "RBAC - Service Account",
 			Status:  output.StatusPassed,
@@ -278,7 +282,7 @@ func (d *PodDiagnostic) checkRBACPermissions(_ context.Context, info *PodInfo) [
 				"serviceAccount": "default",
 			},
 		})
-	} else if info.ServiceAccount == nil {
+	case info.ServiceAccount == nil:
 		checks = append(checks, output.CheckResult{
 			Name:       "RBAC - Service Account",
 			Status:     output.StatusFailed,
@@ -288,7 +292,7 @@ func (d *PodDiagnostic) checkRBACPermissions(_ context.Context, info *PodInfo) [
 				"serviceAccount": pod.Spec.ServiceAccountName,
 			},
 		})
-	} else {
+	default:
 		checks = append(checks, output.CheckResult{
 			Name:    "RBAC - Service Account",
 			Status:  output.StatusPassed,
@@ -347,7 +351,7 @@ func (d *PodDiagnostic) checkContainerLogs(info *PodInfo) []output.CheckResult {
 
 // checkInitContainers checks init container status and issues.
 func (d *PodDiagnostic) checkInitContainers(info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, len(info.Pod.Spec.InitContainers)+1) // Pre-allocate based on init containers
 	pod := info.Pod
 
 	if len(pod.Spec.InitContainers) == 0 {
@@ -378,7 +382,7 @@ func (d *PodDiagnostic) checkInitContainers(info *PodInfo) []output.CheckResult 
 
 // checkResourceConstraints analyzes resource requests, limits, and QoS.
 func (d *PodDiagnostic) checkResourceConstraints(info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, 3) // Pre-allocate for expected resource checks
 	pod := info.Pod
 
 	// Check QoS class
@@ -395,7 +399,7 @@ func (d *PodDiagnostic) checkResourceConstraints(info *PodInfo) []output.CheckRe
 
 // checkNetworkIssues analyzes network-related problems.
 func (d *PodDiagnostic) checkNetworkIssues(info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, 5) // Pre-allocate for expected network checks
 	pod := info.Pod
 
 	// Check if pod has IP address
@@ -570,7 +574,7 @@ func (d *PodDiagnostic) checkResourceFit(pod *corev1.Pod, node *corev1.Node) out
 }
 
 func (d *PodDiagnostic) checkRBACEvents(info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, 5) // Pre-allocate for expected RBAC event checks
 
 	for _, event := range info.Events {
 		if strings.Contains(event.Message, "forbidden") ||
