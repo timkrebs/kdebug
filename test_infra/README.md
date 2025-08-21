@@ -67,7 +67,16 @@ kubectl cluster-info
 kubectl get nodes
 ```
 
-### 3. Build and Test kdebug
+### 3. Deploy Test Pods
+```bash
+# Deploy test workloads for kdebug testing
+./deploy-test-pods.sh
+
+# Verify pods are created
+kubectl get pods -n kdebug-test
+```
+
+### 4. Build and Test kdebug
 ```bash
 # Build kdebug binary
 cd ..
@@ -255,7 +264,21 @@ rm -f kubeconfig_*
 
 ### Common Issues
 
-#### 1. Terraform Apply Fails
+#### 1. Terraform Apply Fails with Rate Limiting
+```bash
+# If you see "client rate limiter Wait returned an error: context deadline exceeded"
+# This happens when deploying test pods immediately after cluster creation
+
+# Fix option 1: Use the fix script
+./fix-terraform.sh
+
+# Fix option 2: Manual fix
+terraform apply  # This will complete the cluster deployment
+./connect-eks.sh
+./deploy-test-pods.sh
+```
+
+#### 2. Other Terraform Apply Failures
 ```bash
 # Check AWS permissions
 aws sts get-caller-identity
@@ -267,7 +290,7 @@ aws ec2 describe-regions
 aws service-quotas get-service-quota --service-code eks --quota-code L-1194D53C
 ```
 
-#### 2. kubectl Connection Issues
+#### 3. kubectl Connection Issues
 ```bash
 # Re-run connection script
 ./connect-eks.sh
@@ -279,7 +302,7 @@ aws eks --region $(terraform output -raw region) update-kubeconfig --name $(terr
 kubectl cluster-info
 ```
 
-#### 3. Test Pods Not Creating
+#### 4. Test Pods Not Creating
 ```bash
 # Check namespace
 kubectl get namespace kdebug-test
@@ -291,7 +314,7 @@ kubectl get pods -n kdebug-test
 kubectl get events -n kdebug-test --sort-by='.lastTimestamp'
 ```
 
-#### 4. Node Group Issues
+#### 5. Node Group Issues
 ```bash
 # Check node status
 kubectl get nodes

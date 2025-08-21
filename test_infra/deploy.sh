@@ -120,13 +120,22 @@ wait_for_cluster() {
     
     # Wait for nodes to be ready
     echo "Waiting for nodes to be ready..."
-    kubectl wait --for=condition=Ready nodes --all --timeout=300s
-    
-    # Wait for test pods to be created
-    echo "Waiting for test pods to be created..."
-    sleep 30
+    kubectl wait --for=condition=Ready nodes --all --timeout=600s
     
     echo -e "${GREEN}✅ Cluster is ready!${NC}"
+}
+
+# Function to deploy test pods
+deploy_test_pods() {
+    echo -e "${YELLOW}🧪 Deploying test pods...${NC}"
+    
+    read -p "Deploy test pods for kdebug testing? (y/n): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        ./deploy-test-pods.sh
+    else
+        echo "Skipping test pod deployment. You can deploy them later with: ./deploy-test-pods.sh"
+    fi
 }
 
 # Function to show deployment summary
@@ -144,10 +153,15 @@ show_summary() {
     kubectl get nodes
     echo ""
     
-    # Test pods status
-    echo -e "${GREEN}Test Pods Status:${NC}"
-    kubectl get pods -n kdebug-test
-    echo ""
+    # Test pods status (if namespace exists)
+    if kubectl get namespace kdebug-test >/dev/null 2>&1; then
+        echo -e "${GREEN}Test Pods Status:${NC}"
+        kubectl get pods -n kdebug-test
+        echo ""
+    else
+        echo -e "${YELLOW}Test pods not deployed yet. Run: ./deploy-test-pods.sh${NC}"
+        echo ""
+    fi
     
     # Next steps
     echo -e "${YELLOW}🎯 Next Steps:${NC}"
@@ -171,6 +185,7 @@ main() {
     deploy_infrastructure
     configure_kubectl
     wait_for_cluster
+    deploy_test_pods
     show_summary
 }
 

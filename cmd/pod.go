@@ -103,12 +103,12 @@ func runPodDiagnostics(cmd *cobra.Command, args []string) error {
 
 	// Create diagnostic configuration
 	config := pod.DiagnosticConfig{
-		Namespace:     namespace,
-		Checks:        checks,
-		IncludeLogs:   includeLogs,
-		LogLines:      logLines,
-		Timeout:       timeout,
-		Containers:    containers,
+		Namespace:   namespace,
+		Checks:      checks,
+		IncludeLogs: includeLogs,
+		LogLines:    logLines,
+		Timeout:     timeout,
+		Containers:  containers,
 	}
 
 	// Initialize pod diagnostic
@@ -126,11 +126,11 @@ func runPodDiagnostics(cmd *cobra.Command, args []string) error {
 	} else {
 		podName = args[0]
 		outputManager.PrintInfo(fmt.Sprintf("Analyzing pod '%s' in namespace '%s'...", podName, namespace))
-		
+
 		if watch {
 			return diagnostic.WatchPod(podName, config)
 		}
-		
+
 		report, err = diagnostic.DiagnosePod(podName, config)
 		if err != nil {
 			return fmt.Errorf("failed to diagnose pod '%s': %w", podName, err)
@@ -140,15 +140,7 @@ func runPodDiagnostics(cmd *cobra.Command, args []string) error {
 	// Output results
 	outputManager.PrintReport(report)
 
-	// Print summary
-	if verbose {
-		outputManager.PrintInfo(fmt.Sprintf("Diagnostic completed in %s", time.Since(time.Now())))
-	}
-
-	// Return error if critical issues found
-	if report.Summary.Failed > 0 {
-		return fmt.Errorf("found %d critical issue(s) requiring attention", report.Summary.Failed)
-	}
-
+	// Don't return error for diagnostic findings - just print summary
+	// This allows the command to exit cleanly while still reporting issues
 	return nil
 }

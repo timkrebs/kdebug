@@ -139,7 +139,7 @@ func (d *PodDiagnostic) DiagnoseAllPods(config DiagnosticConfig) (*output.Diagno
 	for i := range pods.Items {
 		pod := &pods.Items[i]
 
-		d.output.PrintInfo(fmt.Sprintf("Analyzing pod %s...", pod.Name))
+		d.output.PrintInfo(fmt.Sprintf("Executing diagnostic analysis for pod '%s' in namespace '%s'", pod.Name, config.Namespace))
 
 		podInfo, err := d.gatherPodInfoFromPod(ctx, pod, config)
 		if err != nil {

@@ -46,3 +46,8 @@ output "test_pods_info" {
     multi_pod_deployment    = "multi-pod-deployment"
   }
 }
+
+output "deployment_instructions" {
+  description = "Instructions for deploying test pods"
+  value = "After cluster is ready, run: ./deploy-test-pods.sh"
+}
