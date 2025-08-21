@@ -164,9 +164,9 @@ func TestPodDiagnosticsFormats(t *testing.T) {
 	time.Sleep(2 * time.Second)
 
 	formats := []struct {
-		name           string
-		format         string
-		validateFunc   func(t *testing.T, output string)
+		name         string
+		format       string
+		validateFunc func(t *testing.T, output string)
 	}{
 		{
 			name:         "table format",
@@ -215,7 +215,7 @@ func TestPodWatchMode(t *testing.T) {
 
 	// Start watch command in background
 	cmd := exec.Command(getBinaryPath(t), "pod", "watch-test-pod", "--watch")
-	
+
 	// Set a timeout for the watch command
 	go func() {
 		time.Sleep(10 * time.Second)
@@ -322,7 +322,7 @@ spec:
 
 func createMultipleTestPods(t *testing.T) {
 	pods := []string{"multi-pod-1", "multi-pod-2", "multi-pod-3"}
-	
+
 	for _, podName := range pods {
 		manifest := fmt.Sprintf(`
 apiVersion: v1
@@ -366,7 +366,7 @@ func deleteTestPod(t *testing.T, name string) {
 func applyManifest(t *testing.T, manifest string) {
 	cmd := exec.Command("kubectl", "apply", "-f", "-")
 	cmd.Stdin = strings.NewReader(manifest)
-	
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		t.Fatalf("Failed to apply manifest: %v\nOutput: %s\nManifest: %s", err, output, manifest)
@@ -389,7 +389,7 @@ func waitForPodReady(t *testing.T, podName, namespace string) {
 
 		time.Sleep(1 * time.Second)
 	}
-	
+
 	t.Logf("Warning: Pod %s did not become ready within timeout", podName)
 }
 
@@ -399,13 +399,13 @@ func validatePodTableOutput(t *testing.T, outputStr string) {
 	// Basic table output validation
 	expectedElements := []string{"Pod Status", "PASSED", "FAILED", "WARNING"}
 	foundElements := 0
-	
+
 	for _, element := range expectedElements {
 		if strings.Contains(outputStr, element) {
 			foundElements++
 		}
 	}
-	
+
 	if foundElements == 0 {
 		t.Error("Table output doesn't contain expected diagnostic elements")
 	}
@@ -451,13 +451,13 @@ func validatePodYAMLOutput(t *testing.T, outputStr string) {
 	// Basic YAML output validation
 	yamlIndicators := []string{"target:", "timestamp:", "checks:", "summary:"}
 	foundIndicators := 0
-	
+
 	for _, indicator := range yamlIndicators {
 		if strings.Contains(outputStr, indicator) {
 			foundIndicators++
 		}
 	}
-	
+
 	if foundIndicators < 3 {
 		t.Errorf("YAML output doesn't contain enough expected fields (found %d/4)", foundIndicators)
 	}

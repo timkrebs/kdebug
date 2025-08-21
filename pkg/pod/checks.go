@@ -603,7 +603,7 @@ func (d *PodDiagnostic) checkRBACEvents(info *PodInfo) []output.CheckResult {
 func (d *PodDiagnostic) analyzeContainerLogs(containerName, logs string) output.CheckResult {
 	lines := strings.Split(logs, "\n")
 
-	var errorPatterns = []struct {
+	errorPatterns := []struct {
 		pattern    string
 		message    string
 		suggestion string

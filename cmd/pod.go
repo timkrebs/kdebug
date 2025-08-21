@@ -138,7 +138,9 @@ func runPodDiagnostics(cmd *cobra.Command, args []string) error {
 	}
 
 	// Output results
-	outputManager.PrintReport(report)
+	if err := outputManager.PrintReport(report); err != nil {
+		outputManager.PrintWarning(fmt.Sprintf("Failed to print report: %v", err))
+	}
 
 	// Don't return error for diagnostic findings - just print summary
 	// This allows the command to exit cleanly while still reporting issues

@@ -166,9 +166,9 @@ func TestDiagnosticReport_TableVerbose(t *testing.T) {
 
 	// Verbose output should contain detailed information
 	expectedElements := []string{
-		"Target:",       // Target line
-		"Message:",      // Verbose details
-		"Suggestion:",   // Verbose suggestions
+		"Target:",     // Target line
+		"Message:",    // Verbose details
+		"Suggestion:", // Verbose suggestions
 	}
 
 	for _, element := range expectedElements {
