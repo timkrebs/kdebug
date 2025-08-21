@@ -15,8 +15,6 @@ import (
 
 // runDiagnosticChecks executes all diagnostic checks for a pod.
 func (d *PodDiagnostic) runDiagnosticChecks(ctx context.Context, info *PodInfo, config DiagnosticConfig) []output.CheckResult {
-	checks := make([]output.CheckResult, 0, 20) // Pre-allocate for expected number of checks
-
 	// Determine which checks to run
 	checkTypes := config.Checks
 	if len(checkTypes) == 0 {
@@ -25,7 +23,7 @@ func (d *PodDiagnostic) runDiagnosticChecks(ctx context.Context, info *PodInfo, 
 	}
 
 	// Pre-allocate slice with estimated capacity
-	checks = make([]output.CheckResult, 0, len(checkTypes)*3)
+	checks := make([]output.CheckResult, 0, len(checkTypes)*3)
 
 	for _, checkType := range checkTypes {
 		switch checkType {
@@ -311,7 +309,7 @@ func (d *PodDiagnostic) checkRBACPermissions(_ context.Context, info *PodInfo) [
 
 // checkContainerLogs analyzes container logs for common issues.
 func (d *PodDiagnostic) checkContainerLogs(info *PodInfo) []output.CheckResult {
-	var checks []output.CheckResult
+	checks := make([]output.CheckResult, 0, len(info.Pod.Status.ContainerStatuses)) // Pre-allocate based on container count
 
 	if len(info.ContainerLogs) == 0 {
 		checks = append(checks, output.CheckResult{
