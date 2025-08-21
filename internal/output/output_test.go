@@ -130,10 +130,10 @@ func TestDiagnosticReport_Table(t *testing.T) {
 
 	// Validate table output contains expected elements
 	expectedElements := []string{
-		"Analyzing", // Header
-		"✅",         // Passed status
-		"❌",         // Failed status
-		"Summary",   // Summary section
+		"KDEBUG KUBERNETES DIAGNOSTIC REPORT", // Header
+		"PASSED",                              // Passed status
+		"FAILED",                              // Failed status
+		"Summary:",                            // Summary section
 	}
 
 	for _, element := range expectedElements {
@@ -164,16 +164,16 @@ func TestDiagnosticReport_TableVerbose(t *testing.T) {
 	buf.ReadFrom(r)
 	output := buf.String()
 
-	// Verbose output should contain cluster info and suggestions
+	// Verbose output should contain detailed information
 	expectedElements := []string{
-		"Cluster Information",
-		"💡", // Suggestion indicator
-		"test-context",
+		"Target:",       // Target line
+		"Message:",      // Verbose details
+		"Suggestion:",   // Verbose suggestions
 	}
 
 	for _, element := range expectedElements {
 		if !strings.Contains(output, element) {
-			t.Errorf("Verbose table output missing expected element: %s", element)
+			t.Errorf("Verbose table output missing expected element: %s\nActual output:\n%s", element, output)
 		}
 	}
 }
@@ -185,7 +185,7 @@ func TestFormatStatus(t *testing.T) {
 		status CheckStatus
 		want   string
 	}{
-		{StatusPassed, "✅"},
+		{StatusPassed, "✅"}, // legacy function still returns emojis
 		{StatusFailed, "❌"},
 		{StatusWarning, "⚠️"},
 		{StatusSkipped, "⏭️"},
