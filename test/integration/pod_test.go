@@ -309,7 +309,7 @@ metadata:
 spec:
   containers:
   - name: failing-container
-    image: docker.io/library/busybox:nonexistenttag
+    image: docker.io/library/busybox:latest
     resources:
       requests:
         cpu: 10m
