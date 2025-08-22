@@ -49,7 +49,26 @@ make test-quick
 
 **Time:** 1-2 minutes
 
-### 2. Integration Tests (Before Important Pushes)
+### 2. Integration Tests (Skip Cluster Creation) ⚠️
+
+When cluster creation is problematic but you want comprehensive validation:
+
+```bash
+# Skip cluster-dependent tests but run everything else
+make test-integration-local-skip
+
+# Or with environment variable
+SKIP_INTEGRATION_TESTS=true make test-integration-local
+```
+
+**What it includes:**
+- ✅ All quick tests above
+- ⚠️ **Skips**: Kind cluster creation and actual integration tests
+- ✅ **Perfect for**: Local development when cluster tests fail due to Docker/Kind issues
+
+**Time:** 30 seconds
+
+### 3. Integration Tests (Before Important Pushes)
 
 Full integration testing with real Kubernetes cluster:
 
