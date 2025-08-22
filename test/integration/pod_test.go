@@ -472,33 +472,3 @@ func contains(slice []string, item string) bool {
 	}
 	return false
 }
-
-// extractJSON attempts to extract JSON from mixed output
-func extractJSON(output string) string {
-	// Look for JSON starting with { and ending with }
-	start := strings.Index(output, "{")
-	if start == -1 {
-		return ""
-	}
-
-	// Find the matching closing brace
-	braceCount := 0
-	end := -1
-	for i := start; i < len(output); i++ {
-		if output[i] == '{' {
-			braceCount++
-		} else if output[i] == '}' {
-			braceCount--
-			if braceCount == 0 {
-				end = i + 1
-				break
-			}
-		}
-	}
-
-	if end == -1 {
-		return ""
-	}
-
-	return output[start:end]
-}
