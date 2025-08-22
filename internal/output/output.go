@@ -282,15 +282,30 @@ func (o *OutputManager) PrintError(message string, err error) {
 
 // PrintWarning prints a warning message
 func (o *OutputManager) PrintWarning(message string) {
-	fmt.Printf("%s %s\n", colorize("WARNING:", ColorYellow), message)
+	// For structured output formats, write to stderr to avoid contaminating the output
+	if o.Format == FormatJSON || o.Format == FormatYAML {
+		fmt.Fprintf(os.Stderr, "%s %s\n", colorize("WARNING:", ColorYellow), message)
+	} else {
+		fmt.Printf("%s %s\n", colorize("WARNING:", ColorYellow), message)
+	}
 }
 
 // PrintInfo prints an informational message
 func (o *OutputManager) PrintInfo(message string) {
-	fmt.Printf("%s %s\n", colorize("INFO:", ColorCyan), message)
+	// For structured output formats, write to stderr to avoid contaminating the output
+	if o.Format == FormatJSON || o.Format == FormatYAML {
+		fmt.Fprintf(os.Stderr, "%s %s\n", colorize("INFO:", ColorCyan), message)
+	} else {
+		fmt.Printf("%s %s\n", colorize("INFO:", ColorCyan), message)
+	}
 }
 
 // PrintSuccess prints a success message
 func (o *OutputManager) PrintSuccess(message string) {
-	fmt.Printf("%s %s\n", colorize("SUCCESS:", ColorGreen), message)
+	// For structured output formats, write to stderr to avoid contaminating the output
+	if o.Format == FormatJSON || o.Format == FormatYAML {
+		fmt.Fprintf(os.Stderr, "%s %s\n", colorize("SUCCESS:", ColorGreen), message)
+	} else {
+		fmt.Printf("%s %s\n", colorize("SUCCESS:", ColorGreen), message)
+	}
 }
