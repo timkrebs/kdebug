@@ -240,7 +240,9 @@ func TestOutputManager_PrintMessages(t *testing.T) {
 				os.Stderr = old
 
 				buf := new(bytes.Buffer)
-				buf.ReadFrom(r)
+				if _, err := buf.ReadFrom(r); err != nil {
+					t.Fatalf("Failed to read output: %v", err)
+				}
 				output := buf.String()
 
 				if !tt.expectEmpty && len(output) == 0 {
@@ -258,7 +260,9 @@ func TestOutputManager_PrintMessages(t *testing.T) {
 				os.Stdout = old
 
 				buf := new(bytes.Buffer)
-				buf.ReadFrom(r)
+				if _, err := buf.ReadFrom(r); err != nil {
+					t.Fatalf("Failed to read output: %v", err)
+				}
 				output := buf.String()
 
 				if !tt.expectEmpty && len(output) == 0 {
