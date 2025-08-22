@@ -184,10 +184,17 @@ run_linting() {
     
     cd "$PROJECT_ROOT"
     
-    # Run golangci-lint if available, with fallback
-    if command -v golangci-lint &> /dev/null; then
+    # Try GOPATH version first, then system version
+    GOLANGCI_LINT=""
+    if [ -f "$(go env GOPATH)/bin/golangci-lint" ]; then
+        GOLANGCI_LINT="$(go env GOPATH)/bin/golangci-lint"
+    elif command -v golangci-lint &> /dev/null; then
+        GOLANGCI_LINT="golangci-lint"
+    fi
+    
+    if [ -n "$GOLANGCI_LINT" ]; then
         # Try to run golangci-lint, but don't fail completely if config issues
-        if golangci-lint run 2>&1; then
+        if $GOLANGCI_LINT run 2>&1; then
             log_success "Linting passed"
         else
             log_warning "Linting had issues, but continuing..."
