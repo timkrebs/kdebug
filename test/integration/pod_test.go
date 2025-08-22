@@ -309,7 +309,7 @@ metadata:
 spec:
   containers:
   - name: failing-container
-    image: docker.io/library/busybox:latest
+    image: docker.io/library/busybox:nonexistenttag
     resources:
       requests:
         cpu: 10m
@@ -340,6 +340,9 @@ spec:
       requests:
         cpu: 10m
         memory: 32Mi
+      limits:
+        cpu: 100m
+        memory: 128Mi
   restartPolicy: Always
 `
 	applyManifest(t, manifest)
