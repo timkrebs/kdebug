@@ -126,7 +126,23 @@ func TestPodDiagnosticsIntegration(t *testing.T) {
 			// Run the command
 			cmd := exec.Command(getBinaryPath(t), tt.args...)
 			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
-			output, err := cmd.CombinedOutput()
+			
+			// For JSON/YAML output tests, capture stdout only to avoid stderr contamination
+			var output []byte
+			var err error
+			isStructuredOutput := false
+			for _, arg := range tt.args {
+				if arg == "json" || arg == "yaml" {
+					isStructuredOutput = true
+					break
+				}
+			}
+			
+			if isStructuredOutput {
+				output, err = cmd.Output() // Only stdout
+			} else {
+				output, err = cmd.CombinedOutput() // stdout + stderr for other formats
+			}
 			outputStr := string(output)
 
 			// Check success/failure expectation
@@ -210,7 +226,15 @@ func TestPodDiagnosticsFormats(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(getBinaryPath(t), "pod", "format-test-pod", "--output", tt.format)
 			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
-			output, err := cmd.CombinedOutput()
+			
+			// For JSON/YAML, capture stdout separately to avoid stderr contamination
+			var output []byte
+			var err error
+			if tt.format == "json" || tt.format == "yaml" {
+				output, err = cmd.Output() // Only stdout
+			} else {
+				output, err = cmd.CombinedOutput() // stdout + stderr for table format
+			}
 			outputStr := string(output)
 
 			// Allow the validation function to handle errors gracefully
