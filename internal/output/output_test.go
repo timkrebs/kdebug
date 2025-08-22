@@ -56,7 +56,9 @@ func TestDiagnosticReport_JSON(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Validate JSON structure
@@ -92,7 +94,9 @@ func TestDiagnosticReport_YAML(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Validate YAML structure
@@ -125,7 +129,9 @@ func TestDiagnosticReport_Table(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Validate table output contains expected elements
@@ -161,7 +167,9 @@ func TestDiagnosticReport_TableVerbose(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Verbose output should contain detailed information
