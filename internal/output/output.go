@@ -6,9 +6,35 @@ import (
 	"os"
 	"strings"
 
-	"github.com/olekukonko/tablewriter"
 	"gopkg.in/yaml.v3"
 )
+
+// ANSI color codes for terminal output
+const (
+	ColorReset  = "\033[0m"
+	ColorRed    = "\033[31m"
+	ColorGreen  = "\033[32m"
+	ColorYellow = "\033[33m"
+	ColorBlue   = "\033[34m"
+	ColorPurple = "\033[35m"
+	ColorCyan   = "\033[36m"
+	ColorWhite  = "\033[37m"
+	ColorBold   = "\033[1m"
+	ColorDim    = "\033[2m"
+)
+
+// Terminal formatting helpers
+func colorize(text, color string) string {
+	return color + text + ColorReset
+}
+
+func bold(text string) string {
+	return ColorBold + text + ColorReset
+}
+
+func dim(text string) string {
+	return ColorDim + text + ColorReset
+}
 
 // OutputFormat represents the supported output formats
 type OutputFormat string
@@ -114,103 +140,120 @@ func (o *OutputManager) printYAML(report *DiagnosticReport) error {
 	return encoder.Encode(report)
 }
 
-// printTable prints the report as a formatted table
+// printTable prints the report as a pytest-style formatted output
 func (o *OutputManager) printTable(report *DiagnosticReport) error {
-	// Print header
-	fmt.Printf("🔍 Analyzing %s\n\n", report.Target)
+	// Print clean header
+	fmt.Printf("%s\n", bold("KDEBUG KUBERNETES DIAGNOSTIC REPORT"))
+	fmt.Printf("Target: %s | Timestamp: %s\n", report.Target, report.Timestamp)
 
-	// Print cluster info if verbose
-	if o.Verbose && len(report.ClusterInfo) > 0 {
-		fmt.Println("📋 Cluster Information:")
-
-		for key, value := range report.ClusterInfo {
-			fmt.Printf("   %s: %s\n", key, value)
-		}
-
-		fmt.Println()
-	}
-
-	// Create table for checks
-	table := tablewriter.NewWriter(os.Stdout)
-	table.SetHeader([]string{"Check", "Status", "Message"})
-	table.SetBorder(false)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetTablePadding("\t")
-	table.SetNoWhiteSpace(true)
-
-	// Add check results to table
-	for _, check := range report.Checks {
-		status := o.formatStatus(check.Status)
-		message := check.Message
-
-		// Truncate long messages for table display
-		if len(message) > 80 && !o.Verbose {
-			message = message[:77] + "..."
-		}
-
-		table.Append([]string{check.Name, status, message})
-
-		// Print suggestion and details if failed and verbose
-		if (check.Status == StatusFailed || check.Status == StatusWarning) && o.Verbose {
-			if check.Suggestion != "" {
-				table.Append([]string{"", "💡", "Suggestion: " + check.Suggestion})
-			}
-
-			if check.Error != "" {
-				table.Append([]string{"", "❌", "Error: " + check.Error})
-			}
-
-			for key, value := range check.Details {
-				table.Append([]string{"", "📄", fmt.Sprintf("%s: %s", key, value)})
-			}
-		}
-	}
-
-	table.Render()
-
-	// Print summary
-	fmt.Printf("\n📊 Summary: %d/%d checks passed", report.Summary.Passed, report.Summary.Total)
-
-	if report.Summary.Failed > 0 {
-		fmt.Printf(", %d failed", report.Summary.Failed)
-	}
-
-	if report.Summary.Warnings > 0 {
-		fmt.Printf(", %d warnings", report.Summary.Warnings)
-	}
-
-	if report.Summary.Skipped > 0 {
-		fmt.Printf(", %d skipped", report.Summary.Skipped)
+	// Print metadata if available
+	if len(report.Metadata) > 0 {
+		fmt.Printf("Resource: %v | Status: %v\n",
+			report.Metadata["pod_name"],
+			report.Metadata["status"])
 	}
 
 	fmt.Println()
 
-	// Print failed checks summary
-	if !o.Verbose && (report.Summary.Failed > 0 || report.Summary.Warnings > 0) {
-		fmt.Println("\n🎯 Issues Found:")
+	// Print checks in pytest style
+	fmt.Printf("%s\n", bold("Diagnostic Checks:"))
+	fmt.Println()
+
+	for _, check := range report.Checks {
+		status := o.formatStatusClean(check.Status)
+		fmt.Printf("%-50s %s\n", check.Name, status)
+
+		// Print detailed information if verbose and there are issues
+		if o.Verbose && (check.Status == StatusFailed || check.Status == StatusWarning) {
+			if check.Message != "" {
+				fmt.Printf("    %s\n", dim("Message: "+check.Message))
+			}
+			if check.Suggestion != "" {
+				fmt.Printf("    %s\n", dim("Suggestion: "+check.Suggestion))
+			}
+			if len(check.Details) > 0 {
+				for key, value := range check.Details {
+					fmt.Printf("    %s\n", dim(fmt.Sprintf("%s: %s", key, value)))
+				}
+			}
+			fmt.Println()
+		}
+	}
+
+	// Print clean summary like pytest
+	fmt.Println()
+	fmt.Printf("%s\n", bold("Summary:"))
+
+	// Count and categorize results
+	passed := report.Summary.Passed
+	failed := report.Summary.Failed
+	warnings := report.Summary.Warnings
+	skipped := report.Summary.Skipped
+
+	// Print summary line with colors
+	summaryParts := []string{}
+	if passed > 0 {
+		summaryParts = append(summaryParts, colorize(fmt.Sprintf("%d passed", passed), ColorGreen))
+	}
+	if failed > 0 {
+		summaryParts = append(summaryParts, colorize(fmt.Sprintf("%d failed", failed), ColorRed))
+	}
+	if warnings > 0 {
+		summaryParts = append(summaryParts, colorize(fmt.Sprintf("%d warnings", warnings), ColorYellow))
+	}
+	if skipped > 0 {
+		summaryParts = append(summaryParts, colorize(fmt.Sprintf("%d skipped", skipped), ColorCyan))
+	}
+
+	fmt.Printf("%s in total\n", strings.Join(summaryParts, ", "))
+
+	// Print failed and warning details if not verbose
+	if !o.Verbose && (failed > 0 || warnings > 0) {
+		fmt.Println()
+		fmt.Printf("%s\n", bold("Issues found:"))
 
 		for _, check := range report.Checks {
-			if check.Status == StatusFailed || check.Status == StatusWarning {
-				fmt.Printf("   %s %s\n", o.formatStatus(check.Status), check.Name)
-
-				if check.Suggestion != "" {
-					fmt.Printf("      💡 %s\n", check.Suggestion)
+			if check.Status == StatusFailed {
+				fmt.Printf("  %s %s\n", colorize("FAILED", ColorRed), check.Name)
+				if check.Message != "" {
+					fmt.Printf("    %s\n", dim(check.Message))
 				}
 			}
 		}
 
-		fmt.Println("\nRun with --verbose for detailed information")
+		for _, check := range report.Checks {
+			if check.Status == StatusWarning {
+				fmt.Printf("  %s %s\n", colorize("WARNING", ColorYellow), check.Name)
+				if check.Message != "" {
+					fmt.Printf("    %s\n", dim(check.Message))
+				}
+			}
+		}
+
+		fmt.Println()
+		fmt.Printf("%s\n", dim("Run with --verbose for detailed information"))
 	}
 
 	return nil
 }
 
-// formatStatus returns a colored status indicator
+// formatStatusClean returns a clean pytest-style status indicator
+func (o *OutputManager) formatStatusClean(status CheckStatus) string {
+	switch status {
+	case StatusPassed:
+		return colorize("PASSED", ColorGreen)
+	case StatusFailed:
+		return colorize("FAILED", ColorRed)
+	case StatusWarning:
+		return colorize("WARNING", ColorYellow)
+	case StatusSkipped:
+		return colorize("SKIPPED", ColorCyan)
+	default:
+		return colorize("UNKNOWN", ColorWhite)
+	}
+}
+
+// formatStatus returns a colored status indicator (legacy function for compatibility)
 func (o *OutputManager) formatStatus(status CheckStatus) string {
 	switch status {
 	case StatusPassed:
@@ -228,7 +271,7 @@ func (o *OutputManager) formatStatus(status CheckStatus) string {
 
 // PrintError prints an error message
 func (o *OutputManager) PrintError(message string, err error) {
-	fmt.Fprintf(os.Stderr, "❌ Error: %s\n", message)
+	fmt.Fprintf(os.Stderr, "%s %s\n", colorize("ERROR:", ColorRed), message)
 
 	if err != nil {
 		if o.Verbose {
@@ -239,15 +282,30 @@ func (o *OutputManager) PrintError(message string, err error) {
 
 // PrintWarning prints a warning message
 func (o *OutputManager) PrintWarning(message string) {
-	fmt.Printf("⚠️  Warning: %s\n", message)
+	// For structured output formats, write to stderr to avoid contaminating the output
+	if o.Format == FormatJSON || o.Format == FormatYAML {
+		fmt.Fprintf(os.Stderr, "%s %s\n", colorize("WARNING:", ColorYellow), message)
+	} else {
+		fmt.Printf("%s %s\n", colorize("WARNING:", ColorYellow), message)
+	}
 }
 
 // PrintInfo prints an informational message
 func (o *OutputManager) PrintInfo(message string) {
-	fmt.Printf("ℹ️  %s\n", message)
+	// For structured output formats, write to stderr to avoid contaminating the output
+	if o.Format == FormatJSON || o.Format == FormatYAML {
+		fmt.Fprintf(os.Stderr, "%s %s\n", colorize("INFO:", ColorCyan), message)
+	} else {
+		fmt.Printf("%s %s\n", colorize("INFO:", ColorCyan), message)
+	}
 }
 
 // PrintSuccess prints a success message
 func (o *OutputManager) PrintSuccess(message string) {
-	fmt.Printf("✅ %s\n", message)
+	// For structured output formats, write to stderr to avoid contaminating the output
+	if o.Format == FormatJSON || o.Format == FormatYAML {
+		fmt.Fprintf(os.Stderr, "%s %s\n", colorize("SUCCESS:", ColorGreen), message)
+	} else {
+		fmt.Printf("%s %s\n", colorize("SUCCESS:", ColorGreen), message)
+	}
 }

@@ -131,7 +131,7 @@ func runClusterDiagnostics(cmd *cobra.Command, args []string) error {
 
 	if report.Summary.Failed == 0 && report.Summary.Warnings == 0 {
 		fmt.Println()
-		outputMgr.PrintSuccess("Cluster appears to be healthy! 🎉")
+		outputMgr.PrintSuccess("Cluster appears to be healthy!")
 	}
 
 	return nil

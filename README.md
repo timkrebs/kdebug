@@ -2,12 +2,13 @@
 
 # kdebug
 
-[![Go Version](https://img.shields.io/github/go-mod/go-version/username/kdebug)](https://golang.org/)
-[![License](https://img.shields.io/github/license/username/kdebug)](LICENSE)
-[![Release](https://img.shields.io/github/v/release/username/kdebug)](https://github.com/username/kdebug/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/username/kdebug)](https://goreportcard.com/report/github.com/username/kdebug)
-[![Contributors](https://img.shields.io/github/contributors/username/kdebug)](https://github.com/username/kdebug/graphs/contributors)
-
+[![Go Version](https://img.shields.io/github/go-mod/go-version/timkrebs/kdebug)](https://golang.org/)
+[![License](https://img.shields.io/github/license/timkrebs/kdebug)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/timkrebs/kdebug)](https://github.com/timkrebs/kdebug/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/timkrebs/kdebug)](https://goreportcard.com/report/github.com/timkrebs/kdebug)
+[![Contributors](https://img.shields.io/github/contributors/timkrebs/kdebug)](https://github.com/timkrebs/kdebug/graphs/contributors)
+[![CI](https://github.com/timkrebs/kdebug/actions/workflows/ci.yml/badge.svg)](https://github.com/timkrebs/kdebug/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/timkrebs/kdebug/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/timkrebs/kdebug/actions/workflows/github-code-scanning/codeql)
 > 🩺 A CLI tool that automatically diagnoses common Kubernetes issues and provides actionable suggestions.
 
 Think of it as a "doctor" for Kubernetes clusters (like `brew doctor`, but for K8s). Get instant insights into what's wrong with your workloads and how to fix them.
@@ -37,20 +38,22 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
 ## Features
 
 ### 🚀 Currently Available
-- Basic project structure and CLI framework
-
-### 🔄 In Development
+- **CLI Framework** - Complete command structure with global options
 - **Cluster Health Checks**
   - Node conditions (DiskPressure, MemoryPressure, NotReady)
   - Control plane availability and responsiveness
-  - Resource quotas and limits analysis
+  - DNS (CoreDNS) health validation
+  - Basic resource and connectivity diagnostics
+- **Pod Diagnostics** ⭐ *New!*
+  - Pending pods → scheduling constraints, resource limits, node taints
+  - Image pull errors and registry connectivity analysis
+  - CrashLoopBackOff detection with intelligent log analysis
+  - RBAC permission validation for pods and service accounts
+  - Init container failures and dependency issues
+  - Resource constraint analysis and QoS validation
+  - Network connectivity and DNS configuration checks
 
-- **Pod Diagnostics**
-  - Pending pods → insufficient resources, taints, affinity issues
-  - Image pull errors and registry connectivity
-  - CrashLoopBackOff detection with log analysis
-  - RBAC permission validation
-  - Init container failures
+### 🔄 In Development
 
 - **Service & Networking**
   - Selector mismatches (no pods backing the service)
@@ -160,13 +163,22 @@ kdebug cluster --output json > cluster-report.json
 #### Pod Diagnostics
 ```bash
 # Debug a specific pod
-kdebug pod myapp-123 --namespace production
+kdebug pod myapp-deployment-7d4b8c6f9-x8k2l --namespace production
 
 # Debug all pods in a namespace
 kdebug pod --all --namespace default
 
-# Focus on specific checks
-kdebug pod myapp-123 --checks=resources,rbac,dns
+# Focus on specific diagnostic areas
+kdebug pod myapp-pod --checks=basic,scheduling,images,rbac
+
+# Include detailed log analysis for crashed pods
+kdebug pod myapp-pod --include-logs --log-lines 50
+
+# Watch pod status and re-run diagnostics on changes
+kdebug pod myapp-pod --watch
+
+# Export pod diagnostics to JSON
+kdebug pod myapp-pod --output json
 ```
 
 #### Service Diagnostics
@@ -360,10 +372,12 @@ make test-e2e
 
 ### 🎯 Version 0.1.0 - MVP (Current Sprint)
 - ✅ Project structure and CLI framework
-- 🔄 Basic pod health checks (Pending, CrashLoopBackOff)
-- 🔄 Image pull error detection
-- 🔄 RBAC permission validation
-- 🔄 Basic DNS resolution testing
+- ✅ Comprehensive pod diagnostics (Pending, CrashLoopBackOff, scheduling, images, RBAC)
+- ✅ Image pull error detection and registry connectivity analysis
+- ✅ RBAC permission validation for pods and service accounts
+- ✅ Basic DNS resolution testing and configuration validation
+- ✅ Resource constraint analysis and QoS validation
+- ✅ Cluster health checks (nodes, control plane, DNS)
 
 ### 🎯 Version 0.2.0 - Core Features
 - Service health and endpoint validation
