@@ -199,6 +199,27 @@ pre-push:
 	@echo "Running pre-push validation..."
 	./scripts/pre-push.sh
 
+## Local integration testing
+test-integration-local:
+	@echo "Running local integration tests (full suite)..."
+	./scripts/test-integration-local.sh
+
+## Quick local testing
+test-quick:
+	@echo "Running quick local tests..."
+	./scripts/test-quick-local.sh
+
+## Test everything locally (quick + integration)
+test-local-all: test-quick test-integration-local
+
+## Check if local environment is ready for integration tests
+check-integration-env:
+	@echo "Checking integration test environment..."
+	@command -v kind >/dev/null || (echo "❌ kind not found. Install with: go install sigs.k8s.io/kind@latest" && exit 1)
+	@command -v kubectl >/dev/null || (echo "❌ kubectl not found. Please install kubectl" && exit 1)
+	@docker info >/dev/null || (echo "❌ Docker not running. Please start Docker" && exit 1)
+	@echo "✅ Integration test environment is ready"
+
 ## Show help
 help:
 	@echo "Available targets:"
@@ -226,5 +247,9 @@ help:
 	@echo "  run-cluster        - Build and run cluster command"
 	@echo "  fmt-gofumpt        - Format code with gofumpt"
 	@echo "  pre-push           - Run pre-push validation"
+	@echo "  test-quick         - Run quick local tests (build, format, unit, lint)"
+	@echo "  test-integration-local - Run full local integration tests with Kind"
+	@echo "  test-local-all     - Run all local tests (quick + integration)"
+	@echo "  check-integration-env - Check if integration test environment is ready"
 	@echo "  release            - Create release build"
 	@echo "  help               - Show this help"
