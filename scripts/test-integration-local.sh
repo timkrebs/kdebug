@@ -345,6 +345,21 @@ main() {
     
     log_info "Starting local integration test pipeline..."
     
+    # Check if integration tests should be skipped early
+    if [[ "${SKIP_INTEGRATION_TESTS:-false}" == "true" ]]; then
+        log_warning "Skipping integration tests (SKIP_INTEGRATION_TESTS=true)"
+        log_info "Running only build, unit tests, and linting..."
+        
+        check_prerequisites
+        build_binary
+        run_unit_tests
+        run_linting
+        
+        log_success "✅ 🎉 Quick validation completed successfully!"
+        log_info "Integration tests were skipped - this is acceptable for local development"
+        return 0
+    fi
+    
     check_prerequisites
     create_kind_config
     setup_cluster

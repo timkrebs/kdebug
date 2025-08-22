@@ -126,7 +126,7 @@ func TestPodDiagnosticsIntegration(t *testing.T) {
 			// Run the command
 			cmd := exec.Command(getBinaryPath(t), tt.args...)
 			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
-			
+
 			// For JSON/YAML output tests, capture stdout only to avoid stderr contamination
 			var output []byte
 			var err error
@@ -137,7 +137,7 @@ func TestPodDiagnosticsIntegration(t *testing.T) {
 					break
 				}
 			}
-			
+
 			if isStructuredOutput {
 				output, err = cmd.Output() // Only stdout
 			} else {
@@ -226,7 +226,7 @@ func TestPodDiagnosticsFormats(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(getBinaryPath(t), "pod", "format-test-pod", "--output", tt.format)
 			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
-			
+
 			// For JSON/YAML, capture stdout separately to avoid stderr contamination
 			var output []byte
 			var err error

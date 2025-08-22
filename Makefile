@@ -204,6 +204,11 @@ test-integration-local:
 	@echo "Running local integration tests (full suite)..."
 	./scripts/test-integration-local.sh
 
+## Local integration testing (skip cluster tests - faster)
+test-integration-local-skip:
+	@echo "Running local integration tests (skipping cluster creation)..."
+	SKIP_INTEGRATION_TESTS=true ./scripts/test-integration-local.sh
+
 ## Quick local testing
 test-quick:
 	@echo "Running quick local tests..."
