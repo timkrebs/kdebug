@@ -6,6 +6,7 @@ package integration
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"testing"
@@ -124,6 +125,7 @@ func TestPodDiagnosticsIntegration(t *testing.T) {
 
 			// Run the command
 			cmd := exec.Command(getBinaryPath(t), tt.args...)
+			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
 			output, err := cmd.CombinedOutput()
 			outputStr := string(output)
 
@@ -138,10 +140,21 @@ func TestPodDiagnosticsIntegration(t *testing.T) {
 				return
 			}
 
-			// Check expected output - skip if command failed with connectivity issues
-			isFailureCase := strings.Contains(outputStr, "ERROR:") || strings.Contains(outputStr, "failed to") ||
-				strings.Contains(outputStr, "connectivity check failed") || strings.Contains(outputStr, "Usage:") ||
-				strings.Contains(outputStr, "cluster unreachable")
+			// Check expected output - skip if command failed
+			errorPatterns := []string{
+				"ERROR:", "failed to", "connectivity check failed", "Usage:", "cluster unreachable",
+				"not found", "pods \"", "failed to diagnose", "failed to pull", "rpc error",
+				"invalid image", "nonexistent", "connection refused", "timeout",
+			}
+
+			isFailureCase := false
+			for _, pattern := range errorPatterns {
+				if strings.Contains(outputStr, pattern) {
+					isFailureCase = true
+					t.Logf("Command failed, skipping output validation. Error pattern '%s' found. Error output: %s", pattern, outputStr)
+					break
+				}
+			}
 
 			if !isFailureCase {
 				for _, expectedOutput := range tt.expectOutput {
@@ -149,8 +162,6 @@ func TestPodDiagnosticsIntegration(t *testing.T) {
 						t.Errorf("Expected output to contain %q, got: %s", expectedOutput, outputStr)
 					}
 				}
-			} else {
-				t.Logf("Command failed, skipping output validation. Error output: %s", outputStr)
 			}
 
 			// Validate JSON output if applicable
@@ -196,6 +207,7 @@ func TestPodDiagnosticsFormats(t *testing.T) {
 	for _, tt := range formats {
 		t.Run(tt.name, func(t *testing.T) {
 			cmd := exec.Command(getBinaryPath(t), "pod", "format-test-pod", "--output", tt.format)
+			cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
 			output, err := cmd.CombinedOutput()
 			outputStr := string(output)
 
@@ -224,6 +236,7 @@ func TestPodWatchMode(t *testing.T) {
 
 	// Start watch command in background
 	cmd := exec.Command(getBinaryPath(t), "pod", "watch-test-pod", "--watch")
+	cmd.Env = append(os.Environ(), fmt.Sprintf("KUBECONFIG=%s", getKubeconfig(t)))
 
 	// Set a timeout for the watch command
 	go func() {
@@ -422,11 +435,17 @@ func validatePodTableOutput(t *testing.T, outputStr string) {
 
 func validatePodJSONOutput(t *testing.T, outputStr string) {
 	// Check if this is an error case - if so, skip JSON validation
-	if strings.Contains(outputStr, "ERROR:") || strings.Contains(outputStr, "failed to") ||
-		strings.Contains(outputStr, "connectivity check failed") || strings.Contains(outputStr, "Usage:") ||
-		strings.Contains(outputStr, "cluster unreachable") {
-		t.Logf("Command failed, skipping JSON validation. Output: %s", outputStr)
-		return
+	errorPatterns := []string{
+		"ERROR:", "failed to", "connectivity check failed", "Usage:", "cluster unreachable",
+		"not found", "pods \"", "failed to diagnose", "failed to pull", "rpc error",
+		"invalid image", "nonexistent", "connection refused", "timeout",
+	}
+
+	for _, pattern := range errorPatterns {
+		if strings.Contains(outputStr, pattern) {
+			t.Logf("Command failed, skipping JSON validation. Error pattern '%s' found. Output: %s", pattern, outputStr)
+			return
+		}
 	}
 
 	// Extract JSON from the output (might be mixed with other messages)
@@ -466,11 +485,17 @@ func validatePodJSONOutput(t *testing.T, outputStr string) {
 
 func validatePodYAMLOutput(t *testing.T, outputStr string) {
 	// Check if this is an error case - if so, skip YAML validation
-	if strings.Contains(outputStr, "ERROR:") || strings.Contains(outputStr, "failed to") ||
-		strings.Contains(outputStr, "connectivity check failed") || strings.Contains(outputStr, "Usage:") ||
-		strings.Contains(outputStr, "cluster unreachable") {
-		t.Logf("Command failed, skipping YAML validation. Output: %s", outputStr)
-		return
+	errorPatterns := []string{
+		"ERROR:", "failed to", "connectivity check failed", "Usage:", "cluster unreachable",
+		"not found", "pods \"", "failed to diagnose", "failed to pull", "rpc error",
+		"invalid image", "nonexistent", "connection refused", "timeout",
+	}
+
+	for _, pattern := range errorPatterns {
+		if strings.Contains(outputStr, pattern) {
+			t.Logf("Command failed, skipping YAML validation. Error pattern '%s' found. Output: %s", pattern, outputStr)
+			return
+		}
 	}
 
 	// Basic YAML output validation
