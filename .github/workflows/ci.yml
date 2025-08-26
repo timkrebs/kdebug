@@ -114,7 +114,7 @@ jobs:
         wait: 60s
 
     - name: Download binary artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v5
       with:
         name: kdebug-linux-amd64
         path: bin/
