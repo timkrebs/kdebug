@@ -113,10 +113,39 @@ dev-deps:
 	@echo "Installing kind for integration tests..."
 	$(GOGET) sigs.k8s.io/kind@latest
 
-## Install the binary to $GOPATH/bin
+## Install the binary to $GOPATH/bin or /usr/local/bin
 install: build
-	@echo "Installing $(BINARY_NAME) to $$GOPATH/bin..."
-	cp $(BUILD_DIR)/$(BINARY_NAME) $(GOPATH)/bin/
+	@echo "Installing $(BINARY_NAME)..."
+	@if [ -n "$$GOPATH" ]; then \
+		echo "Installing to $$GOPATH/bin/"; \
+		mkdir -p "$$GOPATH/bin"; \
+		cp $(BUILD_DIR)/$(BINARY_NAME) "$$GOPATH/bin/"; \
+	elif [ -w "/usr/local/bin" ]; then \
+		echo "Installing to /usr/local/bin/"; \
+		cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/; \
+	else \
+		echo "Cannot install to system directories. Try:"; \
+		echo "  sudo make install-system"; \
+		echo "  or"; \
+		echo "  make install-user"; \
+		exit 1; \
+	fi
+	@echo "$(BINARY_NAME) installed successfully!"
+
+## Install the binary to /usr/local/bin (requires sudo)
+install-system: build
+	@echo "Installing $(BINARY_NAME) to /usr/local/bin/ (requires sudo)..."
+	sudo cp $(BUILD_DIR)/$(BINARY_NAME) /usr/local/bin/
+	@echo "$(BINARY_NAME) installed successfully!"
+
+## Install the binary to ~/.local/bin (user-local)
+install-user: build
+	@echo "Installing $(BINARY_NAME) to ~/.local/bin/..."
+	@mkdir -p ~/.local/bin
+	cp $(BUILD_DIR)/$(BINARY_NAME) ~/.local/bin/
+	@echo "$(BINARY_NAME) installed to ~/.local/bin/"
+	@echo "Make sure ~/.local/bin is in your PATH. Add this to your shell profile:"
+	@echo "  export PATH=\"\$$HOME/.local/bin:\$$PATH\""
 
 ## Run the binary (for quick testing)
 run:
@@ -170,6 +199,32 @@ pre-push:
 	@echo "Running pre-push validation..."
 	./scripts/pre-push.sh
 
+## Local integration testing
+test-integration-local:
+	@echo "Running local integration tests (full suite)..."
+	./scripts/test-integration-local.sh
+
+## Local integration testing (skip cluster tests - faster)
+test-integration-local-skip:
+	@echo "Running local integration tests (skipping cluster creation)..."
+	SKIP_INTEGRATION_TESTS=true ./scripts/test-integration-local.sh
+
+## Quick local testing
+test-quick:
+	@echo "Running quick local tests..."
+	./scripts/test-quick-local.sh
+
+## Test everything locally (quick + integration)
+test-local-all: test-quick test-integration-local
+
+## Check if local environment is ready for integration tests
+check-integration-env:
+	@echo "Checking integration test environment..."
+	@command -v kind >/dev/null || (echo "❌ kind not found. Install with: go install sigs.k8s.io/kind@latest" && exit 1)
+	@command -v kubectl >/dev/null || (echo "❌ kubectl not found. Please install kubectl" && exit 1)
+	@docker info >/dev/null || (echo "❌ Docker not running. Please start Docker" && exit 1)
+	@echo "✅ Integration test environment is ready"
+
 ## Show help
 help:
 	@echo "Available targets:"
@@ -190,10 +245,16 @@ help:
 	@echo "  clean              - Clean build artifacts"
 	@echo "  deps               - Download dependencies"
 	@echo "  dev-deps           - Install development dependencies"
-	@echo "  install            - Install binary to GOPATH/bin"
+	@echo "  install            - Install binary (auto-detect location)"
+	@echo "  install-system     - Install binary to /usr/local/bin (requires sudo)"
+	@echo "  install-user       - Install binary to ~/.local/bin"
 	@echo "  run                - Build and run the binary"
 	@echo "  run-cluster        - Build and run cluster command"
 	@echo "  fmt-gofumpt        - Format code with gofumpt"
 	@echo "  pre-push           - Run pre-push validation"
+	@echo "  test-quick         - Run quick local tests (build, format, unit, lint)"
+	@echo "  test-integration-local - Run full local integration tests with Kind"
+	@echo "  test-local-all     - Run all local tests (quick + integration)"
+	@echo "  check-integration-env - Check if integration test environment is ready"
 	@echo "  release            - Create release build"
 	@echo "  help               - Show this help"

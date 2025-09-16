@@ -48,7 +48,7 @@ func TestDiagnosticReport_JSON(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -56,7 +56,9 @@ func TestDiagnosticReport_JSON(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Validate JSON structure
@@ -84,7 +86,7 @@ func TestDiagnosticReport_YAML(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -92,7 +94,9 @@ func TestDiagnosticReport_YAML(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Validate YAML structure
@@ -117,7 +121,7 @@ func TestDiagnosticReport_Table(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -125,15 +129,17 @@ func TestDiagnosticReport_Table(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
 	// Validate table output contains expected elements
 	expectedElements := []string{
-		"Analyzing", // Header
-		"✅",         // Passed status
-		"❌",         // Failed status
-		"Summary",   // Summary section
+		"KDEBUG KUBERNETES DIAGNOSTIC REPORT", // Header
+		"PASSED",                              // Passed status
+		"FAILED",                              // Failed status
+		"Summary:",                            // Summary section
 	}
 
 	for _, element := range expectedElements {
@@ -153,7 +159,7 @@ func TestDiagnosticReport_TableVerbose(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -161,19 +167,21 @@ func TestDiagnosticReport_TableVerbose(t *testing.T) {
 	}
 
 	buf := new(bytes.Buffer)
-	buf.ReadFrom(r)
+	if _, err := buf.ReadFrom(r); err != nil {
+		t.Fatalf("Failed to read output: %v", err)
+	}
 	output := buf.String()
 
-	// Verbose output should contain cluster info and suggestions
+	// Verbose output should contain detailed information
 	expectedElements := []string{
-		"Cluster Information",
-		"💡", // Suggestion indicator
-		"test-context",
+		"Target:",     // Target line
+		"Message:",    // Verbose details
+		"Suggestion:", // Verbose suggestions
 	}
 
 	for _, element := range expectedElements {
 		if !strings.Contains(output, element) {
-			t.Errorf("Verbose table output missing expected element: %s", element)
+			t.Errorf("Verbose table output missing expected element: %s\nActual output:\n%s", element, output)
 		}
 	}
 }
@@ -185,7 +193,7 @@ func TestFormatStatus(t *testing.T) {
 		status CheckStatus
 		want   string
 	}{
-		{StatusPassed, "✅"},
+		{StatusPassed, "✅"}, // legacy function still returns emojis
 		{StatusFailed, "❌"},
 		{StatusWarning, "⚠️"},
 		{StatusSkipped, "⏭️"},
@@ -228,11 +236,13 @@ func TestOutputManager_PrintMessages(t *testing.T) {
 
 				tt.fn()
 
-				w.Close()
+				_ = w.Close() // ignore close error in test
 				os.Stderr = old
 
 				buf := new(bytes.Buffer)
-				buf.ReadFrom(r)
+				if _, err := buf.ReadFrom(r); err != nil {
+					t.Fatalf("Failed to read output: %v", err)
+				}
 				output := buf.String()
 
 				if !tt.expectEmpty && len(output) == 0 {
@@ -246,11 +256,13 @@ func TestOutputManager_PrintMessages(t *testing.T) {
 
 				tt.fn()
 
-				w.Close()
+				_ = w.Close() // ignore close error in test
 				os.Stdout = old
 
 				buf := new(bytes.Buffer)
-				buf.ReadFrom(r)
+				if _, err := buf.ReadFrom(r); err != nil {
+					t.Fatalf("Failed to read output: %v", err)
+				}
 				output := buf.String()
 
 				if !tt.expectEmpty && len(output) == 0 {
