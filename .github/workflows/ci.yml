@@ -346,10 +346,8 @@ jobs:
       if: ${{ github.event_name == 'push' }}
       uses: docker/scout-action@v1
       with:
-        command: compare
+        command: cves
         image: ${{ env.IMAGE_NAME }}:latest
-        to-env: production
-        ignore-unchanged: true
         only-severities: critical,high
         github-token: ${{ secrets.GITHUB_TOKEN }}
 
