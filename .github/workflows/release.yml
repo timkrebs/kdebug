@@ -160,9 +160,9 @@ jobs:
       run: |
         if [ -f CHANGELOG.md ]; then
           # Extract changelog for this version
-          awk '/^## \[${{ steps.version.outputs.VERSION }}\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md > release_notes.md
+          awk '/^## \[${{ needs.setup.outputs.version }}\]/{flag=1; next} /^## \[/{flag=0} flag' CHANGELOG.md > release_notes.md
         else
-          echo "Release ${{ steps.version.outputs.VERSION }}" > release_notes.md
+          echo "Release ${{ needs.setup.outputs.version }}" > release_notes.md
           echo "" >> release_notes.md
           echo "### Changes" >> release_notes.md
           git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD >> release_notes.md
@@ -211,19 +211,19 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
         build-args: |
-          VERSION=${{ steps.version.outputs.VERSION }}
+          VERSION=${{ needs.setup.outputs.version }}
 
     - name: Update Homebrew Formula
-      if: ${{ !contains(steps.version.outputs.VERSION, 'rc') && !contains(steps.version.outputs.VERSION, 'beta') && !contains(steps.version.outputs.VERSION, 'alpha') }}
+      if: ${{ !contains(needs.setup.outputs.version, 'rc') && !contains(needs.setup.outputs.version, 'beta') && !contains(needs.setup.outputs.version, 'alpha') }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Get the SHA256 hashes for the Darwin binaries
-        DARWIN_AMD64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/checksums.txt | grep kdebug-darwin-amd64 | cut -d' ' -f1)
-        DARWIN_ARM64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/checksums.txt | grep kdebug-darwin-arm64 | cut -d' ' -f1)
+        DARWIN_AMD64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/${{ needs.setup.outputs.version }}/checksums.txt | grep kdebug-darwin-amd64 | cut -d' ' -f1)
+        DARWIN_ARM64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/${{ needs.setup.outputs.version }}/checksums.txt | grep kdebug-darwin-arm64 | cut -d' ' -f1)
         
-        # Clone the homebrew tap repository
-        git clone https://github.com/timkrebs/homebrew-kdebug.git /tmp/homebrew-kdebug
+        # Clone the homebrew tap repository with authentication
+        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/timkrebs/homebrew-kdebug.git /tmp/homebrew-kdebug
         cd /tmp/homebrew-kdebug
         
         # Configure git
@@ -235,12 +235,12 @@ jobs:
         class Kdebug < Formula
           desc "CLI tool that automatically diagnoses common Kubernetes issues and provides actionable suggestions"
           homepage "https://github.com/timkrebs/kdebug"
-          version "${{ steps.version.outputs.VERSION }}"
+          version "${{ needs.setup.outputs.version }}"
           license "MIT"
 
           on_macos do
             if Hardware::CPU.intel?
-              url "https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/kdebug-darwin-amd64"
+              url "https://github.com/timkrebs/kdebug/releases/download/${{ needs.setup.outputs.version }}/kdebug-darwin-amd64"
               sha256 "${DARWIN_AMD64_SHA}"
 
               def install
@@ -248,7 +248,7 @@ jobs:
               end
             end
             if Hardware::CPU.arm?
-              url "https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/kdebug-darwin-arm64"
+              url "https://github.com/timkrebs/kdebug/releases/download/${{ needs.setup.outputs.version }}/kdebug-darwin-arm64"
               sha256 "${DARWIN_ARM64_SHA}"
 
               def install
@@ -281,9 +281,9 @@ jobs:
         if git diff --cached --quiet; then
           echo "No changes to homebrew formula"
         else
-          git commit -m "Update kdebug to v${{ steps.version.outputs.VERSION }}"
+          git commit -m "Update kdebug to ${{ needs.setup.outputs.version }}"
           git push origin main
-          echo "✅ Updated Homebrew formula to v${{ steps.version.outputs.VERSION }}"
+          echo "✅ Updated Homebrew formula to ${{ needs.setup.outputs.version }}"
         fi
 
   notify:
