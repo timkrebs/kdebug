@@ -74,7 +74,7 @@ jobs:
     # Skip tests for CI-triggered releases (tests already passed in CI)
     if: github.event_name != 'workflow_call'
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
 
     - name: Set up Go
       uses: actions/setup-go@v6
@@ -107,7 +107,7 @@ jobs:
       contents: write
       packages: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
 
@@ -142,7 +142,7 @@ jobs:
 
     - name: Create GitHub Release
       if: needs.setup.outputs.create_release == 'true'
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ needs.setup.outputs.version }}
         name: Release ${{ needs.setup.outputs.version }}
@@ -174,7 +174,7 @@ jobs:
           type=semver,pattern={{major}}.{{minor}},value=${{ needs.setup.outputs.version }}
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         context: .
         push: true
