@@ -48,7 +48,7 @@ func TestDiagnosticReport_JSON(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -86,7 +86,7 @@ func TestDiagnosticReport_YAML(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -121,7 +121,7 @@ func TestDiagnosticReport_Table(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -159,7 +159,7 @@ func TestDiagnosticReport_TableVerbose(t *testing.T) {
 	os.Stdout = w
 
 	err := om.PrintReport(report)
-	w.Close()
+	_ = w.Close() // ignore close error in test
 	os.Stdout = old
 
 	if err != nil {
@@ -236,7 +236,7 @@ func TestOutputManager_PrintMessages(t *testing.T) {
 
 				tt.fn()
 
-				w.Close()
+				_ = w.Close() // ignore close error in test
 				os.Stderr = old
 
 				buf := new(bytes.Buffer)
@@ -256,7 +256,7 @@ func TestOutputManager_PrintMessages(t *testing.T) {
 
 				tt.fn()
 
-				w.Close()
+				_ = w.Close() // ignore close error in test
 				os.Stdout = old
 
 				buf := new(bytes.Buffer)

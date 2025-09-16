@@ -755,7 +755,7 @@ func (d *PodDiagnostic) checkQoSClass(pod *corev1.Pod) output.CheckResult {
 	qosClass := pod.Status.QOSClass
 
 	var message, suggestion string
-	var status output.CheckStatus = output.StatusPassed
+	status := output.StatusPassed
 
 	switch qosClass {
 	case corev1.PodQOSGuaranteed:

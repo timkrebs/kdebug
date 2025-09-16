@@ -305,7 +305,12 @@ func (d *PodDiagnostic) gatherContainerLogs(ctx context.Context, info *PodInfo, 
 			}
 		}
 
-		defer logs.Close()
+		defer func() {
+			if closeErr := logs.Close(); closeErr != nil {
+				// Log close error but don't fail the check
+				fmt.Printf("Warning: failed to close log stream: %v\n", closeErr)
+			}
+		}()
 
 		buf := make([]byte, 2048)
 		var logContent strings.Builder

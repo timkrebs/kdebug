@@ -11,3 +11,6 @@ linters:
   disable:
     - gochecknoinits
     - gochecknoglobals
+
+run:
+  timeout: 10m
