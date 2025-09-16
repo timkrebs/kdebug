@@ -216,14 +216,14 @@ jobs:
     - name: Update Homebrew Formula
       if: ${{ !contains(needs.setup.outputs.version, 'rc') && !contains(needs.setup.outputs.version, 'beta') && !contains(needs.setup.outputs.version, 'alpha') }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        HOMEBREW_REPO_TOKEN: ${{ secrets.HOMEBREW_REPO_TOKEN }}
       run: |
         # Get the SHA256 hashes for the Darwin binaries
         DARWIN_AMD64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/${{ needs.setup.outputs.version }}/checksums.txt | grep kdebug-darwin-amd64 | cut -d' ' -f1)
         DARWIN_ARM64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/${{ needs.setup.outputs.version }}/checksums.txt | grep kdebug-darwin-arm64 | cut -d' ' -f1)
         
-        # Clone the homebrew tap repository with authentication
-        git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/timkrebs/homebrew-kdebug.git /tmp/homebrew-kdebug
+        # Clone the homebrew tap repository with PAT authentication
+        git clone https://x-access-token:${{ secrets.HOMEBREW_REPO_TOKEN }}@github.com/timkrebs/homebrew-kdebug.git /tmp/homebrew-kdebug
         cd /tmp/homebrew-kdebug
         
         # Configure git
