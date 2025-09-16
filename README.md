@@ -71,9 +71,23 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
 ### Prerequisites
 - Kubernetes cluster access (local or remote)
 - `kubectl` configured and working
-- Go 1.23+ (for building from source)
 
-### Install from Release (Recommended)
+### Install via Homebrew (Recommended for macOS)
+```bash
+# Add the kdebug tap
+brew tap timkrebs/kdebug
+
+# Install kdebug
+brew install kdebug
+
+# Or install directly in one command
+brew install timkrebs/kdebug/kdebug
+
+# Verify installation
+kdebug --version
+```
+
+### Install from Release (Linux/Windows)
 ```bash
 # Download the latest release for your platform
 curl -LO https://github.com/timkrebs/kdebug/releases/latest/download/kdebug-linux-amd64

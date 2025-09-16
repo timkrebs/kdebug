@@ -215,12 +215,76 @@ jobs:
 
     - name: Update Homebrew Formula
       if: ${{ !contains(steps.version.outputs.VERSION, 'rc') && !contains(steps.version.outputs.VERSION, 'beta') && !contains(steps.version.outputs.VERSION, 'alpha') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        # This would update a Homebrew formula
-        # For now, just create instructions
-        echo "To update Homebrew formula:" >> release_notes.md
-        echo "1. Update the URL and SHA256 in the formula" >> release_notes.md
-        echo "2. Submit PR to homebrew-core or your tap" >> release_notes.md
+        # Get the SHA256 hashes for the Darwin binaries
+        DARWIN_AMD64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/checksums.txt | grep kdebug-darwin-amd64 | cut -d' ' -f1)
+        DARWIN_ARM64_SHA=$(curl -sL https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/checksums.txt | grep kdebug-darwin-arm64 | cut -d' ' -f1)
+        
+        # Clone the homebrew tap repository
+        git clone https://github.com/timkrebs/homebrew-kdebug.git /tmp/homebrew-kdebug
+        cd /tmp/homebrew-kdebug
+        
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Update the formula with new version and checksums
+        cat > Formula/kdebug.rb << EOF
+        class Kdebug < Formula
+          desc "CLI tool that automatically diagnoses common Kubernetes issues and provides actionable suggestions"
+          homepage "https://github.com/timkrebs/kdebug"
+          version "${{ steps.version.outputs.VERSION }}"
+          license "MIT"
+
+          on_macos do
+            if Hardware::CPU.intel?
+              url "https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/kdebug-darwin-amd64"
+              sha256 "${DARWIN_AMD64_SHA}"
+
+              def install
+                bin.install "kdebug-darwin-amd64" => "kdebug"
+              end
+            end
+            if Hardware::CPU.arm?
+              url "https://github.com/timkrebs/kdebug/releases/download/v${{ steps.version.outputs.VERSION }}/kdebug-darwin-arm64"
+              sha256 "${DARWIN_ARM64_SHA}"
+
+              def install
+                bin.install "kdebug-darwin-arm64" => "kdebug"
+              end
+            end
+          end
+
+          def caveats
+            <<~EOS
+              kdebug is a Kubernetes debugging tool. Make sure you have:
+              - kubectl installed and configured
+              - Access to a Kubernetes cluster
+              
+              Get started with:
+                kdebug pod --help
+                kdebug cluster --help
+            EOS
+          end
+
+          test do
+            system "#{bin}/kdebug", "--version"
+            system "#{bin}/kdebug", "--help"
+          end
+        end
+        EOF
+        
+        # Commit and push the updated formula
+        git add Formula/kdebug.rb
+        if git diff --cached --quiet; then
+          echo "No changes to homebrew formula"
+        else
+          git commit -m "Update kdebug to v${{ steps.version.outputs.VERSION }}"
+          git push origin main
+          echo "✅ Updated Homebrew formula to v${{ steps.version.outputs.VERSION }}"
+        fi
 
   notify:
     name: Notify Release
