@@ -44,7 +44,7 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
   - Control plane availability and responsiveness
   - DNS (CoreDNS) health validation
   - Basic resource and connectivity diagnostics
-- **Pod Diagnostics** ⭐ *New!*
+- **Pod Diagnostics** ⭐ 
   - Pending pods → scheduling constraints, resource limits, node taints
   - Image pull errors and registry connectivity analysis
   - CrashLoopBackOff detection with intelligent log analysis
@@ -52,14 +52,20 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
   - Init container failures and dependency issues
   - Resource constraint analysis and QoS validation
   - Network connectivity and DNS configuration checks
+- **Service Diagnostics** ⭐ *New!*
+  - Service configuration validation (ports, selectors, service types)
+  - Endpoint health and backend pod availability
+  - Service selector matching with available pods
+  - DNS resolution testing for service names within the cluster
+  - Load balancing and traffic distribution issues
+  - Connectivity validation between services and pods
 
 ### 🔄 In Development
 
-- **Service & Networking**
-  - Selector mismatches (no pods backing the service)
-  - Endpoints creation and health
-  - DNS resolution testing inside the cluster
-  - Ingress configuration validation
+- **Advanced Networking**
+  - Ingress configuration validation and routing issues
+  - Network policy validation and connectivity testing
+  - LoadBalancer and NodePort service troubleshooting
 
 - **DNS & CoreDNS**
   - Deploys ephemeral test pods for DNS validation
