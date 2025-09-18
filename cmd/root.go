@@ -24,8 +24,9 @@ Examples:
   kdebug cluster                           # Run cluster-wide health checks
   kdebug pod myapp-123 -n production      # Debug a specific pod
   kdebug service myservice                 # Check service and endpoints
+  kdebug ingress my-ingress                # Diagnose ingress routing issues
   kdebug dns                               # Test DNS resolution`,
-	Version: "0.1.0-dev",
+	Version: "1.0.1",
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

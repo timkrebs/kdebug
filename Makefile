@@ -4,7 +4,7 @@
 
 # Binary name and version
 BINARY_NAME=kdebug
-VERSION=0.1.0-dev
+VERSION=1.0.1
 BUILD_DIR=bin
 
 # Go parameters

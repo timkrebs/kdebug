@@ -44,7 +44,7 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
   - Control plane availability and responsiveness
   - DNS (CoreDNS) health validation
   - Basic resource and connectivity diagnostics
-- **Pod Diagnostics** ⭐ *New!*
+- **Pod Diagnostics** ⭐ 
   - Pending pods → scheduling constraints, resource limits, node taints
   - Image pull errors and registry connectivity analysis
   - CrashLoopBackOff detection with intelligent log analysis
@@ -52,14 +52,26 @@ Instead of manually digging through `kubectl describe` outputs and events, `kdeb
   - Init container failures and dependency issues
   - Resource constraint analysis and QoS validation
   - Network connectivity and DNS configuration checks
+- **Service Diagnostics** ⭐ 
+  - Service configuration validation (ports, selectors, service types)
+  - Endpoint health and backend pod availability
+  - Service selector matching with available pods
+  - DNS resolution testing for service names within the cluster
+  - Load balancing and traffic distribution issues
+  - Connectivity validation between services and pods
+- **Ingress Diagnostics** ⭐ *New in v1.0.1!*
+  - Ingress resource existence and configuration validation
+  - Backend service availability and endpoint health checks
+  - SSL/TLS certificate validation and expiration monitoring
+  - Ingress controller discovery and status verification
+  - Host routing and path configuration analysis
+  - LoadBalancer IP assignment and connectivity testing
 
 ### 🔄 In Development
 
-- **Service & Networking**
-  - Selector mismatches (no pods backing the service)
-  - Endpoints creation and health
-  - DNS resolution testing inside the cluster
-  - Ingress configuration validation
+- **Advanced Networking**
+  - Network policy validation and connectivity testing
+  - LoadBalancer and NodePort service troubleshooting
 
 - **DNS & CoreDNS**
   - Deploys ephemeral test pods for DNS validation
@@ -146,6 +158,11 @@ sudo cp bin/kdebug /usr/local/bin/
    kdebug service <service-name> --namespace <namespace>
    ```
 
+5. **Diagnose ingress routing issues:**
+   ```bash
+   kdebug ingress <ingress-name> --namespace <namespace>
+   ```
+
 ## Usage
 
 ### Global Options
@@ -207,6 +224,31 @@ kdebug service myservice --test-dns
 kdebug service --all-namespaces
 ```
 
+#### Ingress Diagnostics
+```bash
+# Debug a specific ingress resource
+kdebug ingress myapp-ingress --namespace production
+
+# Diagnose all ingress resources in a namespace
+kdebug ingress --all --namespace default
+
+# Diagnose ingress resources across all namespaces
+kdebug ingress --all --all-namespaces
+
+# Run specific checks only (existence, config, backends, endpoints, ssl)
+kdebug ingress myapp-ingress --checks config,backends,ssl
+
+# Focus on SSL/TLS certificate validation
+kdebug ingress myapp-ingress --checks ssl
+
+# Export ingress diagnostics to JSON for further analysis
+kdebug ingress myapp-ingress --output json
+
+# Use command aliases for convenience
+kdebug ing myapp-ingress          # Short form
+kdebug ingresses --all           # Plural form
+```
+
 #### DNS Diagnostics
 ```bash
 # Test DNS resolution in the cluster
@@ -265,6 +307,56 @@ $ kdebug pod myapp-deployment-7d4b8c6f9-x8k2l --namespace production
 ⏱️  Analysis completed in 3.2s
 ```
 
+### Ingress Diagnostics
+```bash
+$ kdebug ingress myapp-ingress --namespace production
+
+🔍 Analyzing ingress: myapp-ingress (production)
+
+┌─────────────────────────────────────────────────────────────┐
+│                        KDEBUG REPORT                        │
+├─────────────────────────────────────────────────────────────┤
+│ Ingress: myapp-ingress                                      │
+│ Namespace: production                                        │
+│ Class: nginx                                                │
+│ Created: 2h ago                                             │
+└─────────────────────────────────────────────────────────────┘
+
+✅ PASSED: Ingress resource exists and is accessible
+✅ PASSED: Ingress configuration is valid
+
+   📄 Details: 2 rules configured for hosts:
+              • api.myapp.com → myapp-api-service:80
+              • web.myapp.com → myapp-web-service:80
+
+❌ FAILED: Backend service health
+
+   📍 Issue: Service myapp-api-service has no ready endpoints
+   📄 Details: Backend service exists but 0/3 pods are ready
+              • myapp-api-deployment-abc123: CrashLoopBackOff
+              • myapp-api-deployment-def456: ImagePullBackOff  
+              • myapp-api-deployment-ghi789: Pending
+   
+   💡 Suggestions:
+      1. Check backend pod status: kdebug pod --all -n production
+      2. Verify service selector matches pod labels
+      3. Ensure pods are healthy and ready
+
+⚠️  WARNING: SSL certificate expires soon
+
+   📍 Issue: TLS certificate expires in 7 days
+   📄 Details: Certificate for *.myapp.com expires 2024-09-25
+              Issued by: Let's Encrypt Authority X3
+   
+   💡 Suggestions:
+      1. Renew certificate before expiration
+      2. Check cert-manager auto-renewal configuration
+      3. Verify ACME challenge configuration
+
+📊 Summary: 2/4 checks passed, 1 warning
+⏱️  Analysis completed in 4.1s
+```
+
 ### Cluster Health Overview
 ```bash
 $ kdebug cluster --output table
@@ -304,11 +396,13 @@ kdebug/
 │   ├── cluster.go         # Cluster health checks
 │   ├── pod.go             # Pod diagnostics
 │   ├── service.go         # Service and networking checks
+│   ├── ingress.go         # Ingress diagnostics and validation
 │   └── dns.go             # DNS resolution testing
 ├── pkg/                   # Core business logic
 │   ├── cluster/           # Cluster-level diagnostic checks
 │   ├── pod/               # Pod-level diagnostic checks
 │   ├── service/           # Service and endpoint checks
+│   ├── ingress/           # Ingress resource diagnostics
 │   ├── dns/               # DNS resolution testing
 │   └── types/             # Shared types and interfaces
 ├── internal/              # Private application code
@@ -392,18 +486,20 @@ make test-e2e
 - ✅ Basic DNS resolution testing and configuration validation
 - ✅ Resource constraint analysis and QoS validation
 - ✅ Cluster health checks (nodes, control plane, DNS)
+- ✅ Service health and endpoint validation
+- ✅ Ingress diagnostics and SSL/TLS validation (v1.0.1)
 
 ### 🎯 Version 0.2.0 - Core Features
-- Service health and endpoint validation
-- Cluster node condition monitoring
-- Control plane health checks
+- Enhanced cluster node condition monitoring
+- Improved control plane health checks
 - Enhanced output formatting and reporting
+- Performance optimizations
 
 ### 🎯 Version 0.3.0 - Advanced Diagnostics
 - Resource quota and limit analysis
 - Network policy validation
-- Ingress controller checks
 - ConfigMap and Secret validation
+- Advanced SSL certificate management
 
 ### 🎯 Version 1.0.0 - Production Ready
 - Comprehensive test coverage
@@ -472,6 +568,12 @@ A: Yes! kdebug works with any Kubernetes cluster including EKS, GKE, AKS, and ot
 
 **Q: How is kdebug different from kubectl?**
 A: While kubectl provides raw data, kdebug analyzes that data to identify problems and suggest solutions automatically.
+
+**Q: What ingress controllers are supported?**
+A: kdebug works with any Kubernetes-compliant ingress controller including NGINX, Traefik, HAProxy, Istio Gateway, and cloud provider load balancers.
+
+**Q: Can kdebug validate SSL certificates from external Certificate Authorities?**
+A: Yes! kdebug can validate SSL/TLS certificates from any CA including Let's Encrypt, DigiCert, and internal certificate authorities.
 
 ## License
 
