@@ -5,7 +5,7 @@ description: >-
   Get quick insights into your K8s environment with comprehensive analysis.
 
 baseurl: "/kdebug" # the subpath of your site, e.g. /blog
-url: "https://your-username.github.io" # the base hostname & protocol for your site
+url: "https://timkrebs.github.io" # the base hostname & protocol for your site
 
 # Build settings
 markdown: kramdown
@@ -55,7 +55,7 @@ features:
     icon: "🌐"
 
 # Social
-github_username: your-username
+github_username: timkrebs
 github_repo: kdebug
 
 # Exclude from processing
