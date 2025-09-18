@@ -1,0 +1,8 @@
+version: 2
+
+linters:
+  disable:
+    - staticcheck
+
+run:
+  timeout: 10m
