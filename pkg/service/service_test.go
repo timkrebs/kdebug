@@ -20,7 +20,7 @@ func TestNewServiceDiagnostic(t *testing.T) {
 	serviceDiag := NewServiceDiagnostic(kubeClient, outputMgr)
 
 	if serviceDiag == nil {
-		t.Error("Expected ServiceDiagnostic to be created, got nil")
+		t.Fatal("Expected ServiceDiagnostic to be created, got nil")
 	}
 
 	if serviceDiag.client != kubeClient {

@@ -258,7 +258,7 @@ func (sd *ServiceDiagnostic) checkServiceConfiguration(ctx context.Context, info
 	// Check service type specific configuration
 	switch service.Spec.Type {
 	case corev1.ServiceTypeLoadBalancer:
-		if service.Status.LoadBalancer.Ingress == nil || len(service.Status.LoadBalancer.Ingress) == 0 {
+		if len(service.Status.LoadBalancer.Ingress) == 0 {
 			issues = append(issues, "LoadBalancer service has no external IP assigned")
 			suggestions = append(suggestions, "Check if load balancer controller is running and configured")
 		}

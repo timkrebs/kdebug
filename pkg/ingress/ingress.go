@@ -709,43 +709,6 @@ func (id *IngressDiagnostic) getLoadBalancerIP(ingress *networkingv1.Ingress) st
 	return ""
 }
 
-// calculateSummary calculates diagnostic summary information
-func (id *IngressDiagnostic) calculateSummary(results []output.CheckResult, ingresses []IngressInfo) SummaryInfo {
-	summary := SummaryInfo{
-		Total: len(ingresses),
-	}
-
-	for _, result := range results {
-		switch result.Status {
-		case output.StatusPassed:
-			summary.Healthy++
-		case output.StatusWarning:
-			summary.Warning++
-		case output.StatusFailed:
-			summary.Critical++
-		}
-	}
-
-	// Count certificates
-	for _, ingress := range ingresses {
-		summary.Certificates += len(ingress.TLSSecrets)
-	}
-
-	return summary
-}
-
-// printSummary prints the diagnostic summary
-func (id *IngressDiagnostic) printSummary(summary SummaryInfo) {
-	fmt.Printf("\n📊 Ingress Diagnostics Summary:\n")
-	fmt.Printf("   Total Ingresses: %d\n", summary.Total)
-	fmt.Printf("   Healthy Checks: %d\n", summary.Healthy)
-	fmt.Printf("   Warnings: %d\n", summary.Warning)
-	fmt.Printf("   Critical Issues: %d\n", summary.Critical)
-	if summary.Certificates > 0 {
-		fmt.Printf("   TLS Certificates: %d\n", summary.Certificates)
-	}
-}
-
 // getIngressClass returns the ingress class name or "default" if not specified
 func getIngressClass(ingress *networkingv1.Ingress) string {
 	if ingress.Spec.IngressClassName != nil {
