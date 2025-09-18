@@ -1,6 +1,6 @@
 # kdebug Makefile
 
-.PHONY: build clean test lint fmt vet install dev-deps help
+.PHONY: build clean test lint fmt vet install dev-deps help local-ci local-ci-quick local-ci-build local-ci-no-tests local-ci-verbose
 
 # Binary name and version
 BINARY_NAME=kdebug
@@ -256,5 +256,35 @@ help:
 	@echo "  test-integration-local - Run full local integration tests with Kind"
 	@echo "  test-local-all     - Run all local tests (quick + integration)"
 	@echo "  check-integration-env - Check if integration test environment is ready"
+	@echo "  local-ci           - Run full local CI in Docker (mirrors GitHub Actions)"
+	@echo "  local-ci-quick     - Run quick local CI checks (tests + lint only)"
+	@echo "  local-ci-build     - Build Docker CI image"
 	@echo "  release            - Create release build"
 	@echo "  help               - Show this help"
+
+## Local CI Commands
+
+## Run complete local CI in Docker (mirrors GitHub Actions)
+local-ci:
+	@echo "🚀 Running complete local CI in Docker..."
+	./scripts/local-ci.sh --full
+
+## Run quick local CI checks (tests + lint only)
+local-ci-quick:
+	@echo "⚡ Running quick local CI checks..."
+	./scripts/local-ci.sh --quick
+
+## Build Docker CI image
+local-ci-build:
+	@echo "🔨 Building Docker CI image..."
+	docker build -f Dockerfile.ci -t kdebug-ci:latest .
+
+## Run local CI without tests (lint, build, security only)
+local-ci-no-tests:
+	@echo "🔧 Running local CI without tests..."
+	./scripts/local-ci.sh --no-tests
+
+## Run local CI with verbose output
+local-ci-verbose:
+	@echo "📝 Running local CI with verbose output..."
+	./scripts/local-ci.sh --verbose --full

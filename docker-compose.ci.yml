@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Local CI Environment
+  ci:
+    build:
+      context: .
+      dockerfile: Dockerfile.ci
+    image: kdebug-ci:latest
+    container_name: kdebug-ci
+    volumes:
+      - .:/workspace
+      - /var/run/docker.sock:/var/run/docker.sock  # For Docker-in-Docker if needed
+    working_dir: /workspace
+    environment:
+      - GO_VERSION=1.24
+      - CGO_ENABLED=0
+    command: ["tail", "-f", "/dev/null"]  # Keep container running
+    
+  # Quick CI check (tests + lint only)
+  ci-quick:
+    extends: ci
+    command: ["make", "test", "lint"]
+    
+  # Full CI check (all validations)
+  ci-full:
+    extends: ci
+    command: ["bash", "./scripts/local-ci.sh", "--full"]

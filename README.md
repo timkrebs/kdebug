@@ -462,7 +462,35 @@ make clean
 
 # Install development dependencies
 make dev-deps
+
+# Local CI - Run all checks before pushing
+make local-ci-quick      # Fast: tests + lint only
+make local-ci            # Full: all GitHub Actions checks
+make local-ci-verbose    # Full with detailed output
 ```
+
+### Local CI Workflow
+
+Run comprehensive CI checks locally in Docker to catch issues before pushing to GitHub:
+
+```bash
+# Quick validation during development (recommended)
+make local-ci-quick
+
+# Full CI validation before push
+make local-ci
+
+# Build CI Docker image
+make local-ci-build
+```
+
+The local CI system provides:
+- **Docker-based environment** that mirrors GitHub Actions
+- **Fast feedback loop** to catch issues early
+- **All CI checks**: tests, linting, security scanning, vulnerability checks
+- **Flexible execution** with various flags and options
+
+For detailed usage, see [Local CI Documentation](docs/local-ci.md).
 
 ### Running Tests
 ```bash

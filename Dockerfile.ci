@@ -1,0 +1,46 @@
+# Local CI Docker Environment for kdebug
+# This Dockerfile creates an environment that mirrors the GitHub Actions CI
+
+FROM golang:1.24-alpine AS base
+
+# Install required tools for CI
+RUN apk add --no-cache \
+    git \
+    make \
+    curl \
+    bash \
+    ca-certificates \
+    openssh-client
+
+# Install golangci-lint (matching the version in CI)
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.60.3
+
+# Install security and vulnerability tools (fallback to available versions)
+RUN go install github.com/securecodewarrior/gosec/v2/cmd/gosec@v2.19.0 || \
+    echo "Warning: gosec installation failed, security checks will be skipped"
+
+RUN go install github.com/sonatypecommunity/nancy@v1.0.46 || \
+    echo "Warning: nancy installation failed, vulnerability checks will be skipped"
+
+# Install gofumpt for formatting
+RUN go install mvdan.cc/gofumpt@latest
+
+# Set working directory
+WORKDIR /workspace
+
+# Copy go mod files first for better caching
+COPY go.mod go.sum ./
+
+# Download dependencies
+RUN go mod download
+
+# Copy the rest of the code
+COPY . .
+
+# Create a non-root user for security
+RUN adduser -D -s /bin/bash ciuser && \
+    chown -R ciuser:ciuser /workspace
+USER ciuser
+
+# Default command
+CMD ["/bin/bash"]
