@@ -7,6 +7,7 @@ import (
 	"time"
 
 	corev1 "k8s.io/api/core/v1"
+	discoveryv1 "k8s.io/api/discovery/v1"
 	networkingv1 "k8s.io/api/networking/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -39,7 +40,7 @@ type DiagnosticConfig struct {
 type IngressInfo struct {
 	Ingress          *networkingv1.Ingress
 	BackendServices  []*corev1.Service
-	BackendEndpoints []*corev1.Endpoints
+	BackendEndpoints []*discoveryv1.EndpointSlice
 	TLSSecrets       []*corev1.Secret
 	LoadBalancerIP   string
 }
@@ -414,24 +415,27 @@ func (id *IngressDiagnostic) checkBackendEndpoints(ctx context.Context, info *In
 
 			serviceName := path.Backend.Service.Name
 
-			// Find corresponding endpoints
-			for _, endpoints := range info.BackendEndpoints {
-				if endpoints.Name == serviceName {
-					if len(endpoints.Subsets) == 0 {
-						issues = append(issues, fmt.Sprintf("Service %s has no endpoints", serviceName))
-						continue
-					}
-
-					for _, subset := range endpoints.Subsets {
-						totalEndpoints += len(subset.Addresses) + len(subset.NotReadyAddresses)
-						readyEndpoints += len(subset.Addresses)
-
-						if len(subset.Addresses) == 0 {
-							issues = append(issues, fmt.Sprintf("Service %s has no ready endpoints", serviceName))
-						}
-					}
-					break
+			// Find corresponding endpoint slices
+			for _, endpointSlice := range info.BackendEndpoints {
+				// Check if this endpoint slice belongs to the service
+				if serviceName, exists := endpointSlice.Labels["kubernetes.io/service-name"]; !exists || serviceName != path.Backend.Service.Name {
+					continue
 				}
+
+				if len(endpointSlice.Endpoints) == 0 {
+					issues = append(issues, fmt.Sprintf("Service %s has no endpoints", serviceName))
+					continue
+				}
+
+				for _, endpoint := range endpointSlice.Endpoints {
+					totalEndpoints++
+					if endpoint.Conditions.Ready != nil && *endpoint.Conditions.Ready {
+						readyEndpoints++
+					} else {
+						issues = append(issues, fmt.Sprintf("Service %s has unready endpoints", serviceName))
+					}
+				}
+				break
 			}
 		}
 	}
@@ -641,9 +645,9 @@ func (id *IngressDiagnostic) getBackendServices(ctx context.Context, ingress *ne
 	return services, nil
 }
 
-// getBackendEndpoints retrieves endpoints for backend services
-func (id *IngressDiagnostic) getBackendEndpoints(ctx context.Context, ingress *networkingv1.Ingress) ([]*corev1.Endpoints, error) {
-	var endpoints []*corev1.Endpoints
+// getBackendEndpoints retrieves endpoint slices for backend services
+func (id *IngressDiagnostic) getBackendEndpoints(ctx context.Context, ingress *networkingv1.Ingress) ([]*discoveryv1.EndpointSlice, error) {
+	var endpoints []*discoveryv1.EndpointSlice
 	serviceNames := make(map[string]bool)
 
 	// Extract service names from ingress rules
@@ -658,14 +662,19 @@ func (id *IngressDiagnostic) getBackendEndpoints(ctx context.Context, ingress *n
 		}
 	}
 
-	// Get endpoints for each service
+	// Get endpoint slices for each service
 	for serviceName := range serviceNames {
-		endpoint, err := id.client.Clientset.CoreV1().Endpoints(ingress.Namespace).Get(ctx, serviceName, metav1.GetOptions{})
+		// List endpoint slices that match the service
+		endpointSlices, err := id.client.Clientset.DiscoveryV1().EndpointSlices(ingress.Namespace).List(ctx, metav1.ListOptions{
+			LabelSelector: fmt.Sprintf("kubernetes.io/service-name=%s", serviceName),
+		})
 		if err != nil {
-			// Endpoints not found - we'll report this in the check
+			// EndpointSlices not found - we'll report this in the check
 			continue
 		}
-		endpoints = append(endpoints, endpoint)
+		for i := range endpointSlices.Items {
+			endpoints = append(endpoints, &endpointSlices.Items[i])
+		}
 	}
 
 	return endpoints, nil
