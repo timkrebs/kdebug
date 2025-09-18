@@ -11,7 +11,8 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: $spacing-md 0;
+    padding: $spacing-lg 0;
+    min-height: 60px;
   }
   
   .site-title {
@@ -27,9 +28,20 @@
     }
     
     .logo {
-      width: 32px;
-      height: 32px;
-      margin-right: $spacing-sm;
+      width: 40px;
+      height: 40px;
+      margin-right: $spacing-md;
+      border-radius: $border-radius;
+      box-shadow: 0 2px 8px rgba(50, 108, 229, 0.2);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      background-color: $white;
+      border: 2px solid rgba(50, 108, 229, 0.1);
+      
+      &:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(50, 108, 229, 0.3);
+        border-color: rgba(50, 108, 229, 0.2);
+      }
     }
   }
   

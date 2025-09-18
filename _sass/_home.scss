@@ -14,8 +14,21 @@
     margin-bottom: $spacing-lg;
     
     img {
-      width: 80px;
-      height: 80px;
+      width: 96px;
+      height: 96px;
+      border-radius: $border-radius-lg;
+      box-shadow: 0 8px 24px rgba(50, 108, 229, 0.15);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      
+      &:hover {
+        transform: translateY(-4px) scale(1.05);
+        box-shadow: 0 12px 32px rgba(50, 108, 229, 0.25);
+      }
+      
+      @media (max-width: $breakpoint-md) {
+        width: 80px;
+        height: 80px;
+      }
     }
   }
   
