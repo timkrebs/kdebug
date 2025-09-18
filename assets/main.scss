@@ -1,0 +1,15 @@
+---
+---
+
+@import "variables";
+@import "base";
+@import "header";
+@import "home";
+@import "docs";
+@import "footer";
+
+// Page content wrapper
+.page-content {
+  padding: $spacing-lg 0;
+  min-height: calc(100vh - 200px);
+}

@@ -1,0 +1,157 @@
+// Global styles
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: $font-family-base;
+  line-height: 1.6;
+  color: $dark-gray;
+  margin: 0;
+  padding: 0;
+  background-color: $white;
+}
+
+.wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $spacing-md;
+}
+
+// Buttons
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: $spacing-sm $spacing-lg;
+  font-size: 1rem;
+  font-weight: 500;
+  text-decoration: none;
+  border: 2px solid;
+  border-radius: $border-radius;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-md;
+  }
+  
+  .icon {
+    width: 20px;
+    height: 20px;
+    margin-right: $spacing-sm;
+    fill: currentColor;
+  }
+}
+
+.btn-primary {
+  background-color: $primary-blue;
+  border-color: $primary-blue;
+  color: $white;
+  
+  &:hover {
+    background-color: $primary-blue-dark;
+    border-color: $primary-blue-dark;
+    color: $white;
+  }
+}
+
+.btn-secondary {
+  background-color: transparent;
+  border-color: $primary-blue;
+  color: $primary-blue;
+  
+  &:hover {
+    background-color: $primary-blue;
+    color: $white;
+  }
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin-bottom: $spacing-md;
+  color: $dark-blue;
+}
+
+h1 {
+  font-size: 2.5rem;
+  @media (max-width: $breakpoint-md) {
+    font-size: 2rem;
+  }
+}
+
+h2 {
+  font-size: 2rem;
+  @media (max-width: $breakpoint-md) {
+    font-size: 1.75rem;
+  }
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+}
+
+p {
+  margin-bottom: $spacing-md;
+  color: $medium-gray;
+}
+
+// Code blocks
+pre, code {
+  font-family: $font-family-mono;
+  font-size: 0.875rem;
+}
+
+code {
+  background-color: $light-gray;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $border-radius;
+  color: $dark-blue;
+}
+
+pre {
+  background-color: $dark-blue;
+  color: $white;
+  padding: $spacing-lg;
+  border-radius: $border-radius;
+  overflow-x: auto;
+  margin-bottom: $spacing-md;
+  
+  code {
+    background-color: transparent;
+    padding: 0;
+    color: inherit;
+  }
+}
+
+.code-block {
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, $primary-blue, $primary-blue-light);
+    border-radius: $border-radius $border-radius 0 0;
+  }
+  
+  pre {
+    margin: 0;
+    border-radius: 0 0 $border-radius $border-radius;
+  }
+}

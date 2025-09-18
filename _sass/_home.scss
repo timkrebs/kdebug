@@ -1,0 +1,132 @@
+// Hero section
+.hero-section {
+  background: linear-gradient(135deg, $secondary-blue 0%, $white 100%);
+  padding: $spacing-xxl 0;
+  text-align: center;
+  
+  .hero-content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 $spacing-md;
+  }
+  
+  .hero-logo {
+    margin-bottom: $spacing-lg;
+    
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  }
+  
+  h1 {
+    font-size: 3rem;
+    margin-bottom: $spacing-md;
+    color: $dark-blue;
+    
+    @media (max-width: $breakpoint-md) {
+      font-size: 2.5rem;
+    }
+  }
+  
+  .hero-description {
+    font-size: 1.25rem;
+    color: $medium-gray;
+    margin-bottom: $spacing-xl;
+    line-height: 1.6;
+  }
+  
+  .hero-actions {
+    display: flex;
+    gap: $spacing-md;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+
+// Features section
+.features-section {
+  padding: $spacing-xxl 0;
+  background-color: $white;
+  
+  h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: $spacing-xxl;
+    color: $dark-blue;
+  }
+  
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: $spacing-xl;
+    margin-top: $spacing-xl;
+  }
+  
+  .feature-card {
+    background-color: $white;
+    border: 1px solid $border-color;
+    border-radius: $border-radius-lg;
+    padding: $spacing-xl;
+    text-align: center;
+    transition: all 0.3s ease;
+    
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: $shadow-lg;
+      border-color: $primary-blue;
+    }
+    
+    .feature-icon {
+      font-size: 3rem;
+      margin-bottom: $spacing-lg;
+    }
+    
+    h3 {
+      font-size: 1.5rem;
+      margin-bottom: $spacing-md;
+      color: $dark-blue;
+    }
+    
+    p {
+      color: $medium-gray;
+      line-height: 1.6;
+    }
+  }
+}
+
+// Getting started section
+.getting-started-section {
+  padding: $spacing-xxl 0;
+  background-color: $light-gray;
+  
+  h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: $spacing-xxl;
+    color: $dark-blue;
+  }
+  
+  .quick-start-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: $spacing-xl;
+  }
+  
+  .quick-start-card {
+    background-color: $white;
+    border-radius: $border-radius-lg;
+    padding: $spacing-xl;
+    box-shadow: $shadow-md;
+    
+    h3 {
+      margin-bottom: $spacing-lg;
+      color: $dark-blue;
+      font-size: 1.25rem;
+    }
+    
+    .code-block {
+      margin-top: $spacing-md;
+    }
+  }
+}

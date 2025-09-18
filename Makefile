@@ -288,3 +288,80 @@ local-ci-no-tests:
 local-ci-verbose:
 	@echo "📝 Running local CI with verbose output..."
 	./scripts/local-ci.sh --verbose --full
+
+## Website Development Targets
+
+## Install Jekyll dependencies for website development
+website-deps:
+	@echo "💎 Installing Jekyll dependencies..."
+	@if ! command -v ruby >/dev/null 2>&1; then \
+		echo "❌ Ruby is not installed. Please install Ruby first."; \
+		echo "   macOS: brew install ruby"; \
+		echo "   Linux: sudo apt-get install ruby-full"; \
+		exit 1; \
+	fi
+	@if ! command -v bundle >/dev/null 2>&1; then \
+		echo "💎 Installing bundler..."; \
+		gem install bundler; \
+	fi
+	@echo "📦 Installing Jekyll and dependencies..."
+	bundle install
+	@echo "✅ Jekyll dependencies installed"
+
+## Serve website locally for development
+website-serve: website-deps
+	@echo "🌐 Starting Jekyll development server..."
+	@echo "📍 Website will be available at: http://localhost:4000"
+	bundle exec jekyll serve --livereload --drafts
+
+## Build website for production
+website-build: website-deps
+	@echo "🏗️ Building website for production..."
+	bundle exec jekyll build
+	@echo "✅ Website built in _site/ directory"
+
+## Clean website build artifacts
+website-clean:
+	@echo "🧹 Cleaning website build artifacts..."
+	@rm -rf _site .jekyll-cache .sass-cache
+	@echo "✅ Website artifacts cleaned"
+
+## Check website for broken links and issues
+website-check: website-build
+	@echo "🔍 Checking website for issues..."
+	@if command -v htmlproofer >/dev/null 2>&1; then \
+		htmlproofer ./_site --check-html --check-links --assume-extension; \
+	else \
+		echo "⚠️  htmlproofer not installed. Install with: gem install html-proofer"; \
+		echo "💡 Basic build check completed successfully"; \
+	fi
+
+## Install website checking tools
+website-check-deps:
+	@echo "🔧 Installing website checking tools..."
+	gem install html-proofer
+	@echo "✅ Website checking tools installed"
+
+## Development workflow: clean, build, and serve website
+website-dev: website-clean website-serve
+
+## Production workflow: clean, build, and check website
+website-prod: website-clean website-build website-check
+
+## Show website development help
+website-help:
+	@echo "🌐 Website Development Commands:"
+	@echo ""
+	@echo "  website-deps       Install Jekyll dependencies"
+	@echo "  website-serve      Start local development server"
+	@echo "  website-build      Build website for production"
+	@echo "  website-clean      Clean build artifacts"
+	@echo "  website-check      Check for broken links and issues"
+	@echo "  website-dev        Clean + serve (development workflow)"
+	@echo "  website-prod       Clean + build + check (production workflow)"
+	@echo ""
+	@echo "🔧 Setup Commands:"
+	@echo "  website-check-deps Install website checking tools"
+	@echo ""
+	@echo "📍 Local development URL: http://localhost:4000"
+	@echo "🔄 Live reload enabled during development"

@@ -1,0 +1,111 @@
+// Header styles
+.site-header {
+  background-color: $white;
+  border-bottom: 1px solid $border-color;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: $shadow-sm;
+  
+  .header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $spacing-md 0;
+  }
+  
+  .site-title {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: $dark-blue;
+    text-decoration: none;
+    
+    &:hover {
+      color: $primary-blue;
+    }
+    
+    .logo {
+      width: 32px;
+      height: 32px;
+      margin-right: $spacing-sm;
+    }
+  }
+  
+  .site-nav {
+    .nav-trigger {
+      display: none;
+    }
+    
+    .page-link {
+      color: $medium-gray;
+      text-decoration: none;
+      margin-left: $spacing-lg;
+      font-weight: 500;
+      transition: color 0.3s ease;
+      
+      &:hover {
+        color: $primary-blue;
+      }
+    }
+    
+    // Mobile menu
+    @media (max-width: $breakpoint-md) {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      background-color: $white;
+      border: 1px solid $border-color;
+      border-radius: $border-radius;
+      box-shadow: $shadow-md;
+      
+      .menu-icon {
+        display: block;
+        float: right;
+        width: 36px;
+        height: 26px;
+        line-height: 0;
+        padding-top: 10px;
+        text-align: center;
+        cursor: pointer;
+        
+        svg {
+          fill: $medium-gray;
+        }
+      }
+      
+      .trigger {
+        clear: both;
+        display: none;
+        padding: $spacing-md;
+      }
+      
+      .nav-trigger:checked ~ .trigger {
+        display: block;
+      }
+      
+      .page-link {
+        display: block;
+        padding: $spacing-sm 0;
+        margin-left: 0;
+        border-bottom: 1px solid $border-color;
+        
+        &:last-child {
+          border-bottom: none;
+        }
+      }
+    }
+    
+    @media (min-width: $breakpoint-md) {
+      .menu-icon {
+        display: none;
+      }
+      
+      .trigger {
+        display: flex !important;
+        align-items: center;
+      }
+    }
+  }
+}

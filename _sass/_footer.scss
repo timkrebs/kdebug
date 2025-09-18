@@ -1,0 +1,63 @@
+// Footer styles
+.site-footer {
+  background-color: $dark-blue;
+  color: $white;
+  padding: $spacing-xxl 0 $spacing-lg;
+  margin-top: $spacing-xxl;
+  
+  .footer-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: $spacing-xl;
+    margin-bottom: $spacing-xl;
+    
+    @media (max-width: $breakpoint-md) {
+      grid-template-columns: 1fr;
+      gap: $spacing-lg;
+    }
+  }
+  
+  .footer-col {
+    h3, h4 {
+      color: $white;
+      margin-bottom: $spacing-md;
+    }
+    
+    p {
+      color: rgba($white, 0.8);
+      line-height: 1.6;
+    }
+  }
+  
+  .footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    li {
+      margin-bottom: $spacing-sm;
+    }
+    
+    a {
+      color: rgba($white, 0.8);
+      text-decoration: none;
+      transition: color 0.3s ease;
+      
+      &:hover {
+        color: $primary-blue-light;
+      }
+    }
+  }
+  
+  .footer-bottom {
+    padding-top: $spacing-lg;
+    border-top: 1px solid rgba($white, 0.2);
+    text-align: center;
+    
+    p {
+      margin: 0;
+      color: rgba($white, 0.6);
+      font-size: 0.875rem;
+    }
+  }
+}

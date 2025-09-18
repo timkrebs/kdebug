@@ -1,0 +1,53 @@
+---
+layout: default
+---
+
+<div class="docs-layout">
+  <nav class="docs-sidebar">
+    <div class="sidebar-content">
+      <h3>Documentation</h3>
+      <ul class="docs-nav">
+        {% for link in site.nav_links %}
+          {% if link.url contains '/docs/' %}
+          <li>
+            <a href="{{ link.url | relative_url }}" 
+               {% if page.url == link.url %}class="active"{% endif %}>
+              {{ link.title }}
+            </a>
+          </li>
+          {% endif %}
+        {% endfor %}
+      </ul>
+    </div>
+  </nav>
+
+  <main class="docs-content">
+    <article class="docs-article">
+      <header class="article-header">
+        <h1>{{ page.title }}</h1>
+        {% if page.description %}
+        <p class="article-description">{{ page.description }}</p>
+        {% endif %}
+      </header>
+
+      <div class="article-body">
+        {{ content }}
+      </div>
+
+      {% if page.next or page.previous %}
+      <nav class="article-nav">
+        {% if page.previous %}
+        <a href="{{ page.previous.url | relative_url }}" class="nav-previous">
+          ← {{ page.previous.title }}
+        </a>
+        {% endif %}
+        {% if page.next %}
+        <a href="{{ page.next.url | relative_url }}" class="nav-next">
+          {{ page.next.title }} →
+        </a>
+        {% endif %}
+      </nav>
+      {% endif %}
+    </article>
+  </main>
+</div>

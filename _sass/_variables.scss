@@ -1,0 +1,40 @@
+// Kubernetes-inspired color scheme
+$primary-blue: #326ce5;
+$primary-blue-dark: #2851d1;
+$primary-blue-light: #4f8aff;
+$secondary-blue: #f0f7ff;
+$dark-blue: #1a1a2e;
+$light-gray: #f8f9fa;
+$medium-gray: #6c757d;
+$dark-gray: #343a40;
+$white: #ffffff;
+$border-color: #e1e4e8;
+$success-green: #28a745;
+$warning-orange: #fd7e14;
+
+// Typography
+$font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+$font-family-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+
+// Spacing
+$spacing-xs: 0.25rem;
+$spacing-sm: 0.5rem;
+$spacing-md: 1rem;
+$spacing-lg: 1.5rem;
+$spacing-xl: 2rem;
+$spacing-xxl: 3rem;
+
+// Breakpoints
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+// Shadows
+$shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+$shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+$shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+
+// Border radius
+$border-radius: 0.375rem;
+$border-radius-lg: 0.5rem;

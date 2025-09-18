@@ -1,0 +1,78 @@
+# Site settings
+title: kdebug
+description: >-
+  A powerful command-line tool for debugging Kubernetes pods and clusters.
+  Get quick insights into your K8s environment with comprehensive analysis.
+
+baseurl: "/kdebug" # the subpath of your site, e.g. /blog
+url: "https://your-username.github.io" # the base hostname & protocol for your site
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+theme: minima
+
+# Plugins
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# Collections
+collections:
+  docs:
+    output: true
+    permalink: /:collection/:name/
+
+# Navigation
+nav_links:
+  - title: "Home"
+    url: "/"
+  - title: "Getting Started"
+    url: "/docs/getting-started/"
+  - title: "Installation"
+    url: "/docs/installation/"
+  - title: "Commands"
+    url: "/docs/commands/"
+  - title: "Examples"
+    url: "/docs/examples/"
+  - title: "Contributing"
+    url: "/docs/contributing/"
+
+# Feature cards for homepage
+features:
+  - title: "Pod Analysis"
+    description: "Comprehensive pod debugging with resource analysis, logs, and health checks"
+    icon: "🔍"
+  - title: "Cluster Insights"
+    description: "Get detailed cluster information including nodes, namespaces, and resources"
+    icon: "🏗️"
+  - title: "Easy to Use"
+    description: "Simple command-line interface with intuitive commands and helpful output"
+    icon: "⚡"
+  - title: "Cross Platform"
+    description: "Works on Linux, macOS, and Windows with native binaries"
+    icon: "🌐"
+
+# Social
+github_username: your-username
+github_repo: kdebug
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor/bundle/
+  - vendor/cache/
+  - vendor/gems/
+  - vendor/ruby/
+  - bin/
+  - scripts/
+  - test/
+  - Dockerfile*
+  - docker-compose*
+  - Makefile
+  - "*.test"
+  - integration.test
+  - test-report-*.txt
