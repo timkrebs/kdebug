@@ -70,6 +70,11 @@ make run-cluster
 
 # Or run directly
 ./bin/kdebug cluster --verbose
+
+# Test other components
+./bin/kdebug pod --all
+./bin/kdebug service --all  
+./bin/kdebug ingress --all
 ```
 
 #### 4. Test different scenarios
@@ -84,6 +89,9 @@ make run-cluster
 # Test nodes-only mode
 ./bin/kdebug cluster --nodes-only
 
+# Test ingress diagnostics with specific checks
+./bin/kdebug ingress my-ingress --checks config,backends,ssl
+
 # Test with different timeout
 ./bin/kdebug cluster --timeout 10s
 ```
@@ -97,12 +105,35 @@ kubectl drain kind-kdebug-test-worker --ignore-daemonsets --delete-emptydir-data
 # Scale down CoreDNS to test DNS issues
 kubectl scale deployment coredns --replicas=0 -n kube-system
 
-# Test kdebug with these issues
+# Create test ingress resources for ingress diagnostics
+kubectl apply -f - <<EOF
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-ingress
+  namespace: default
+spec:
+  rules:
+  - host: test.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-service
+            port:
+              number: 80
+EOF
+
+# Test kdebug with these scenarios
 ./bin/kdebug cluster --verbose
+./bin/kdebug ingress test-ingress
 
 # Restore cluster
 kubectl scale deployment coredns --replicas=2 -n kube-system
 kubectl uncordon kind-kdebug-test-worker
+kubectl delete ingress test-ingress
 ```
 
 #### 6. Cleanup
@@ -163,12 +194,14 @@ kdebug/
 ├── cmd/                    # CLI command definitions
 │   ├── root.go            # Root command and global flags
 │   ├── cluster.go         # Cluster health checks
-│   ├── pod.go             # Pod diagnostics (future)
-│   └── service.go         # Service checks (future)
+│   ├── pod.go             # Pod diagnostics
+│   ├── service.go         # Service checks
+│   └── ingress.go         # Ingress diagnostics
 ├── pkg/                   # Core business logic
 │   ├── cluster/           # Cluster-level checks
-│   ├── pod/               # Pod-level checks (future)
-│   └── service/           # Service checks (future)
+│   ├── pod/               # Pod-level checks
+│   ├── service/           # Service checks
+│   └── ingress/           # Ingress diagnostics
 ├── internal/              # Private application code
 │   ├── client/            # Kubernetes client utilities
 │   └── output/            # Output formatting

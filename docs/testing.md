@@ -17,8 +17,13 @@ kdebug uses a multi-layered testing approach:
 ```
 test/
 ├── integration/           # Integration tests with real clusters
-│   └── cluster_test.go   # Cluster command integration tests
+│   ├── cluster_test.go   # Cluster command integration tests
+│   ├── pod_test.go       # Pod diagnostics integration tests
+│   └── ingress_test.go   # Ingress diagnostics integration tests
 ├── fixtures/             # Test data and fixtures
+│   ├── ingress/          # Sample ingress resources for testing
+│   ├── pods/             # Sample pod manifests
+│   └── services/         # Sample service manifests
 ├── e2e/                  # End-to-end tests
 └── performance/          # Performance benchmarks
 
@@ -68,6 +73,8 @@ go test ./...
 
 # Run tests for specific package
 go test ./pkg/cluster/
+go test ./pkg/ingress/
+go test ./pkg/service/
 
 # Run with verbose output
 go test -v ./...
@@ -75,6 +82,9 @@ go test -v ./...
 # Run with coverage
 go test -coverprofile=coverage.out ./...
 go tool cover -html=coverage.out
+
+# Test specific ingress functionality
+go test -v ./pkg/ingress/ -run TestCheckIngressExists
 ```
 
 #### Integration Tests
@@ -90,6 +100,10 @@ make test-integration
 
 # Run specific integration test
 go test -tags integration -v ./test/integration/ -run TestClusterDiagnostics
+go test -tags integration -v ./test/integration/ -run TestIngressDiagnostics
+
+# Test ingress diagnostics with various scenarios
+go test -tags integration -v ./test/integration/ -run TestIngressSSLValidation
 
 # Cleanup test cluster
 make test-cluster-cleanup
@@ -168,6 +182,11 @@ go test -tags integration -v ./test/integration/
 2. **Insufficient Permissions**: Test RBAC limitations
 3. **Partial Cluster Issues**: Node problems, DNS issues, etc.
 4. **Network Issues**: Timeouts, intermittent connectivity
+5. **Ingress Issues**: 
+   - Missing backend services
+   - SSL certificate problems
+   - Invalid ingress configurations
+   - Controller unavailable
 
 ### Edge Cases
 
@@ -175,6 +194,11 @@ go test -tags integration -v ./test/integration/
 2. **Old Kubernetes Versions**: Compatibility testing
 3. **Custom Resources**: Behavior with CRDs
 4. **Mixed Architectures**: ARM and x86 nodes
+5. **Ingress Edge Cases**:
+   - Multiple ingress controllers
+   - Complex routing rules
+   - Certificate expiration scenarios
+   - Load balancer provisioning failures
 
 ## Writing Tests
 
