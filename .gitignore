@@ -36,4 +36,5 @@ cobra.test
 bin
 
 .idea/
-*.iml
+*.imlcoverage.out
+coverage.html
