@@ -122,7 +122,7 @@ jobs:
       timeout-minutes: 2
 
     - name: Upload binary artifact
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: kdebug-linux-amd64
         path: bin/kdebug
@@ -217,7 +217,7 @@ jobs:
       run: make build-all
 
     - name: Upload cross-compiled binaries
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: kdebug-all-platforms
         path: bin/
